@@ -40,7 +40,7 @@ def load_and_get_table_df(keys_space_name, table_name):
 
 import_sample()
 
-df.write\
+df_rxevent.write\
     .format("org.apache.spark.sql.cassandra")\
     .mode('append')\
     .options(table="kv", keyspace="test")\
