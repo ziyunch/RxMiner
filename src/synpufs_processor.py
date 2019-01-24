@@ -28,18 +28,9 @@ def import_sample():
 def link_synpufs():
     dr_rxevent.leftOuterJoin(df_bene1)
 
-
-# Start spark session
-spark = SparkSession.builder
-    .master("local")
-    .appName("SynPUFs Processor")
-    .getOrCreate()
-
 import_sample()
 df.write
     .format("org.apache.spark.sql.cassandra")
     .mode('append')
     .options(table="kv", keyspace="test")
     .save()
-
-spark.stop()
