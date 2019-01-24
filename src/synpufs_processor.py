@@ -29,7 +29,7 @@ def import_sample():
     df_carrier = unionAll(df_carrier1, df_carrier2)
 
 def link_synpufs():
-    dr_rxevent.leftOuterJoin(df_bene1)
+    df_rxevent.leftOuterJoin(df_bene1)
 
 def load_and_get_table_df(keys_space_name, table_name):
     table_df = sqlContext.read\
