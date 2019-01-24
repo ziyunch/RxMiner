@@ -29,8 +29,8 @@ def link_synpufs():
     dr_rxevent.leftOuterJoin(df_bene1)
 
 import_sample()
-df.write
-    .format("org.apache.spark.sql.cassandra")
-    .mode('append')
-    .options(table="kv", keyspace="test")
+df.write\
+    .format("org.apache.spark.sql.cassandra")\
+    .mode('append')\
+    .options(table="kv", keyspace="test")\
     .save()
