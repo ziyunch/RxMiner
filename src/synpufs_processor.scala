@@ -16,6 +16,6 @@ object price_data {
       .getOrCreate()
     val df = spark.read.option("header", true).csv('s3n://rxminer/SynPUFs/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_1.csv')
 
-    df.write.format("org.apache.spark.sql.cassandra").options(Map( "table" -> "tablename", "keyspace" -> "keyspace")).save()
+    df.write.format("org.apache.spark.sql.cassandra").options(Map("table" -> "tablename", "keyspace" -> "kyspace")).save()
   }
 }
