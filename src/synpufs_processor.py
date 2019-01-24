@@ -9,7 +9,7 @@ from pyspark.sql import DataFrame
 def unionAll(*dfs):
     return reduce(DataFrame.unionAll, dfs)
 
-def import_sample:
+def import_sample():
     sc = SparkContext.getOrCreate()
     sqlContext = SQLContext(sc)
     df_rxevent = sqlContext.read.format('csv').options(header='true', inferSchema='true').load('s3n://rxminer/SynPUFs/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_1.csv')
@@ -25,7 +25,7 @@ def import_sample:
     df_bene = unionAll(df_bene1, df_bene2, df_bene3)
     df_carrier = unionAll(df_carrier1, df_carrier2)
 
-def link_synpufs:
+def link_synpufs():
     dr_rxevent.leftOuterJoin(df_bene1)
 
 
