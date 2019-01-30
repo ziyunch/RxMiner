@@ -18,6 +18,10 @@ def df_to_postgres(df, df_name, mode):
     """
     Save DataFrame to PostgreSQL by providing sqlalchemy engine
     """
+    # Connecting to PostgreSQL by providing a sqlachemy engine
+    #engine = sa.create_engine('postgresql://'+psql_user+':'+psql_pswd+'@'+psql_host+':'+psql_port+'/'+psql_db,echo=False)
+    engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
+    conn = engine.connect()
     # Writing Dataframe to PostgreSQL and replacing table if it already exists
     df.to_sql(name=df_name, con=engine, if_exists = mode, index=False)
 
@@ -57,6 +61,8 @@ def merge_table():
             pupd
         LEFT JOIN npidata ON npidata.npi = pupd.npi
     """
+    engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
+    conn = engine.connect()
     engine.execute(query)
     for row in iter_row(engine, 10):
         print(row)
@@ -70,10 +76,6 @@ def main():
     psql_host = os.getenv('POSTGRESQL_HOST_IP', 'default')
     psql_port = os.getenv('POSTGRESQL_PORT', 'default')
     psql_db = os.getenv('POSTGRESQL_DATABASE', 'default')
-    # Connecting to PostgreSQL by providing a sqlachemy engine
-    #engine = sa.create_engine('postgresql://'+psql_user+':'+psql_pswd+'@'+psql_host+':'+psql_port+'/'+psql_db,echo=False)
-    engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
-    conn = engine.connect()
     chunk_size = 100000
     #s3_path = 's3n://rxminer/'
     s3_path = '../test/rxdata/'
