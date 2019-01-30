@@ -51,35 +51,36 @@ def read_npi_test(file_name, read_limit, table_name, mode):
 def read_pupd_test(year, read_limit, table_name, mode):
     df = pd.read_csv(s3_path+'pupd/medicare_pupd_'+str(year)+'.csv', nrows=read_limit)
     df["year"] = year
-    df_to_postgres(df, 'pupd', 'replace')
+    df_to_postgres(df, table_name, mode)
 
 def merge_table():
     query = """
         SELECT
-            pupd.npi,
-            pupd.nppes_provider_state
-            npidata.practice_state
+            pupd-test.npi,
+            pupd-test.nppes_provider_state
+            npidata-test.practice_state
         FROM
-            pupd
-        LEFT JOIN npidata ON npidata.npi = pupd.npi
+            pupd-test
+        LEFT JOIN npidata-test ON npidata-test.npi = pupd-test.npi
     """
     cur.execute(query)
     print("The number of parts: ", cur.rowcount)
     row = cur.fetchone()
     print(row)
 
-# Disable `SettingWithCopyWarning`
-pd.options.mode.chained_assignment = None
-test_limit = int(sys.argv[1])
-# Connecting to PostgreSQL by providing a sqlachemy engine
-#engine = sa.create_engine('postgresql://'+psql_user+':'+psql_pswd+'@'+psql_host+':'+psql_port+'/'+psql_db,echo=False)
-engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
-con = engine.connect()
-conn = psycopg2.connect(dbname='rxdata', user='dbuser', host='localhost', password='password')
-cur = conn.cursor()
-s3_path = '../test/rxdata/'
-read_npi_test('npidata_pfile_20050523-20190113', test_limit, 'npidata', 'replace')
-read_pupd_test(2016, test_limit, 'pupd', 'replace')
-merge_table()
-cur.close()
-con.close()
+if __name__ == "__main__":
+    # Disable `SettingWithCopyWarning`
+    pd.options.mode.chained_assignment = None
+    test_limit = int(sys.argv[1])
+    # Connecting to PostgreSQL by providing a sqlachemy engine
+    #engine = sa.create_engine('postgresql://'+psql_user+':'+psql_pswd+'@'+psql_host+':'+psql_port+'/'+psql_db,echo=False)
+    engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
+    con = engine.connect()
+    conn = psycopg2.connect(dbname='rxdata', user='dbuser', host='localhost', password='password')
+    cur = conn.cursor()
+    s3_path = '../test/rxdata/'
+    read_npi_test('npidata_pfile_20050523-20190113', test_limit, 'npidata-test', 'replace')
+    read_pupd_test(2016, test_limit, 'pupd-test', 'replace')
+    merge_table()
+    cur.close()
+    con.close()

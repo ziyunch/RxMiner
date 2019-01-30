@@ -65,18 +65,19 @@ def merge_table():
 def delete_table():
     cur.execute("DELETE TABLE pupd, npidata")
 
-# Disable `SettingWithCopyWarning`
-pd.options.mode.chained_assignment = None
-engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
-con = engine.connect()
-conn = psycopg2.connect(dbname='rxdata', user='dbuser', host='localhost', password='password')
-cur = conn.cursor()
-chunk_size = 1000000
-#s3_path = 's3n://rxminer/'
-s3_path = '../test/rxdata/'
-delete_table()
-read_npi('npidata_pfile_20050523-20190113')
-read_pupd(2016)
-merge_table()
-cur.close()
-con.close()
+if __name__ == "__main__":
+    # Disable `SettingWithCopyWarning`
+    pd.options.mode.chained_assignment = None
+    engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
+    con = engine.connect()
+    conn = psycopg2.connect(dbname='rxdata', user='dbuser', host='localhost', password='password')
+    cur = conn.cursor()
+    chunk_size = 1000000
+    #s3_path = 's3n://rxminer/'
+    s3_path = '../test/rxdata/'
+    delete_table()
+    read_npi('npidata_pfile_20050523-20190113')
+    read_pupd(2016)
+    merge_table()
+    cur.close()
+    con.close()
