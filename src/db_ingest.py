@@ -75,8 +75,8 @@ def main():
     engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
     conn = engine.connect()
     chunk_size = 100000
-    s3_path = 's3n://rxminer/'
-    #s3_path = '../test/rxdata/'
+    #s3_path = 's3n://rxminer/'
+    s3_path = '../test/rxdata/'
     read_npi('npidata_pfile_20050523-20190113')
     read_pupd(2016)
     merge_table()

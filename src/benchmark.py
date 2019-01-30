@@ -43,6 +43,7 @@ def main():
     test_limit = sys.argv[1]
     engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
     conn = engine.connect()
+    global s3_path
     s3_path = '../test/rxdata/'
     read_npi_test('npidata_pfile_20050523-20190113', test_limit, 'npidata', 'replace')
     read_pupd_test(2016, test_limit, 'pupd', 'replace')
