@@ -78,7 +78,8 @@ if __name__ == "__main__":
     con = engine.connect()
     conn = psycopg2.connect(dbname='rxdata', user='dbuser', host='localhost', password='password')
     cur = conn.cursor()
-    s3_path = '../test/rxdata/'
+    s3_path = 's3n://rxminer'
+    # s3_path = '../test/rxdata/'
     read_npi_test('npidata_pfile_20050523-20190113', test_limit, 'npidata-test', 'replace')
     read_pupd_test(2016, test_limit, 'pupd-test', 'replace')
     merge_table()
