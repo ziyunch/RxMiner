@@ -4,7 +4,9 @@ import boto
 import pandas as pd
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
-import db_ingest
+from db_ingest import clean_npi
+from db_ingest import df_to_postgres
+from db_ingest import merge_table
 
 def import_test_db(read_limit):
     client = Socrata("data.medicaid.gov", rxminer_token)
