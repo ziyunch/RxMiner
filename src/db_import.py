@@ -1,58 +1,36 @@
 import math, os
 import boto
-import boto3
 import requests
 import pandas as pd
 from sodapy import Socrata
 from filechunkio import FileChunkIO
 
-def multi_upload_s3(source_path):
-    """Store large dataset in s3: split such files into smaller components,
-        upload each component in turn and then S3 combines them into the
-        final object.
-    Args:
-        source_path: (string) SODA api.
-    Returns:
-        hour: (int) A integer designating the hour;
-    """
-    # Calculate size of the source file
-    source_size = os.stat(source_path).st_size
+def import_soda(client_path, end_point, file_name):
+    clinet = Socrate(client_path, rxminer_token)
+    results = client.get(end_point)
+    results_df = pd.DataFrame.from_records(results)
+    export_csv = results_df.to_csv(r'../test/rxdata/'+file_name, index=None, header=True)
 
-    # Create a multipart upload request
-    mp = b.initiate_multipart_upload(os.path.basename(source_path))
+def import_pupd():
+    pupd_dict = {'2016':'yvpj-pmj2', '2015':'3z4d-vmhm', '2014':'465c-49pb', '2013':'4uvc-gbfz'}
+    for year,end_point in pupd_dict.items():
+        file_name = 'pupd/medicare-pupd-'+year+'.csv'
+        client_path = 'data.cms.gov'
+        import_soda(client_path, end_point, file_name)
 
-    # Use a chunk size of 50 MiB (feel free to change this)
-    chunk_size = 52428800
-    chunk_count = int(math.ceil(source_size / float(chunk_size)))
+def upload_pupd():
+    # Create an S3 client
+    s3 = boto3.client('s3')
+    filename = 'file.txt'
+    bucket_name = 'my-bucket'
+    # Uploads the given file using a managed uploader, which will split up large
+    # files automatically and upload parts in parallel.
+    s3.upload_file(filename, bucket_name, filename)
 
-    # Send the file parts, using FileChunkIO to create a file-like object
-    # that points to a certain byte range within the original file. We
-    # set bytes to never exceed the original file size.
-    for i in range(chunk_count):
-        offset = chunk_size * i
-        bytes = min(chunk_size, source_size - offset)
-        with FileChunkIO(source_path, 'r', offset=offset,
-                         bytes=bytes) as fp:
-            mp.upload_part_from_file(fp, part_num=i + 1)
-
-    # Finish the upload
-    mp.complete_upload()
-    return source_size
-
-def main():
-    # Connect to S3
-    aws_access_key = os.getenv('AWS_ACCESS_KEY_ID', 'default')
-    aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', 'default')
-    conn = boto.connect_s3(aws_access_key, aws_secret_access_key)
-    bucket_name = "rxminer"
-    bucket = conn.create_bucket(bucket_name)
-    bucket = conn.get_bucket(bucket_name)
-    object_key = "rx_data/"
-    rxminer_token = os.getenv("SODAPY_APPTOKEN", 'default')
-
+def import_file():
     # Unauthenticated client only works with public data sets. Note 'None'
     # in place of application token, and no username or password:
-    client = Socrata("data.cms.gov", rxminer_token)
+    client = Socrata("data.medicaid.gov", rxminer_token)
     # Example authenticated client (needed for non-public datasets):
     # client = Socrata(data.medicaid.gov,
     #                  MyAppToken,
@@ -61,28 +39,28 @@ def main():
 
     # First 2000 results, returned as JSON from API / converted to Python list of
     # dictionaries by sodapy.
-    results = client.get("xbte-dn4t", limit=10000)
+    results = client.get("neai-csgh", limit=10000)
     results_df = pd.DataFrame.from_records(results)
-    export_csv = results_df.to_csv(r'../pupd/medicare_pupd_2016.csv', index=None, header=True)
-
-    results = client.get("3z4d-vmhm")
+    export_csv = results_df.to_csv(r'../test/sample/medicaid-sdud-2016.csv', index=None, header=True)
+    # read puf file
+    client = Socrata("data.cms.gov", rxminer_token)
+    results = client.get("haqy-eqp7", limit=10000)
     results_df = pd.DataFrame.from_records(results)
-    export_csv = results_df.to_csv(r'../pupd/medicare-puf-2015.csv', index=None, header=True)
-
-    results = client.get("ep4w-t37d")
+    export_csv = results_df.to_csv(r'../test/sample/medicare-puf-2016.csv', index=None, header=True)
+    #read medicare-part d puf file
+    results = client.get("ep4w-t37d", limit=10000)
     results_df = pd.DataFrame.from_records(results)
     export_csv = results_df.to_csv(r'../test/sample/medicare-partd-puf-2016.csv', index=None, header=True)
-
+    # read open payment data
     client = Socrata("openpaymentsdata.cms.gov", rxminer_token)
-    results = client.get("a3k9-9uq3")
+    results = client.get("a3k9-9uq3", limit=10000)
     results_df = pd.DataFrame.from_records(results)
-    export_csv = results_df.to_csv(r'../openpayment/openpayment-gen-2016.csv', index=None, header=True)
-
+    export_csv = results_df.to_csv(r'../test/sample/openpayment-gen-2016.csv', index=None, header=True)
+    # read wa sample
     client = Socrata("data.wa.gov", rxminer_token)
     results = client.get("t8zq-rh9q", limit=10000, clinicUse="y")
     results_df = pd.DataFrame.from_records(results)
     export_csv = results_df.to_csv(r'../test/sample/wa-pmp-2016q1.csv', index=None, header=True)
-
     """
     soda_api = "https://data.medicaid.gov/api/views/3v6v-qk5s/rows.csv?accessType=DOWNLOAD"
     stream data into aws S3, doesn't work
@@ -90,6 +68,18 @@ def main():
     with requests.get(soda_api, stream=True) as r:
         s3_object.put(Body=r.content)
     """
+
+def main():
+    # Connect to S3
+    aws_access_key = os.getenv('AWS_ACCESS_KEY_ID', 'default')
+    aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', 'default')
+    rxminer_token = os.getenv("SODAPY_APPTOKEN", 'default')
+    conn = boto.connect_s3(aws_access_key, aws_secret_access_key)
+    bucket_name = "rxminer"
+    # bucket = conn.create_bucket(bucket_name)
+    bucket = conn.get_bucket(bucket_name)
+    object_key = "rx_data/"
+    import_pupd()
 
 if __name__ == "__main__":
     main()
