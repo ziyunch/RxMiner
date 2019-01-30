@@ -4,9 +4,23 @@ import boto
 import pandas as pd
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
-from db_ingest import clean_npi
-from db_ingest import df_to_postgres
-from db_ingest import merge_table
+
+def clean_npi(df):
+    """
+    Clean up NPI table
+    """
+    df = df.dropna(subset=['entity_type_code'])
+    df.practice_postal = df.practice_postal.str.slice(0, 5)
+    df.loc[df.practice_country != 'US', 'practice_state'] = "XX"
+    df.loc[df.practice_country != 'US', 'practice_postal'] = "00000"
+    return(df)
+
+def df_to_postgres(df, df_name, mode):
+    """
+    Save DataFrame to PostgreSQL by providing sqlalchemy engine
+    """
+    # Writing Dataframe to PostgreSQL and replacing table if it already exists
+    df.to_sql(name=df_name, con=engine, if_exists = mode, index=False)
 
 def import_test_db(read_limit):
     client = Socrata("data.medicaid.gov", rxminer_token)
@@ -38,6 +52,19 @@ def read_pupd_test(year, read_limit, table_name, mode):
     df = pd.read_csv(s3_path+'pupd/medicare_pupd_'+str(year)+'.csv', nrows=read_limit)
     df["year"] = year
     df_to_postgres(df, 'pupd', 'replace')
+
+def merge_table():
+    query = """
+        SELECT
+            pupd.npi,
+            npi.practice_state
+        FROM
+            pupd
+        LEFT JOIN npidata ON npidata.npi = pupd.npi
+    """
+    engine.execute(query)
+    for row in iter_row(engine, 10):
+        print(row)
 
 # Disable `SettingWithCopyWarning`
 pd.options.mode.chained_assignment = None
