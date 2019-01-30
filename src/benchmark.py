@@ -62,7 +62,6 @@ def merge_table():
             pupd
         LEFT JOIN npidata ON npidata.npi = pupd.npi
     """
-    cur = conn.cursor()
     cur.execute(query)
     print("The number of parts: ", cur.rowcount)
     row = cur.fetchone()
@@ -74,7 +73,9 @@ test_limit = int(sys.argv[1])
 # Connecting to PostgreSQL by providing a sqlachemy engine
 #engine = sa.create_engine('postgresql://'+psql_user+':'+psql_pswd+'@'+psql_host+':'+psql_port+'/'+psql_db,echo=False)
 engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
-conn = engine.connect()
+con = engine.connect()
+conn = psycopg2.connect(dbname='rxdata', user='dbuser', host='localhost', password='password')
+cur = conn.cursor()
 s3_path = '../test/rxdata/'
 read_npi_test('npidata_pfile_20050523-20190113', test_limit, 'npidata', 'replace')
 read_pupd_test(2016, test_limit, 'pupd', 'replace')
