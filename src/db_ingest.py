@@ -55,8 +55,8 @@ def read_npi(file_name):
 def merge_table():
     query = """
         SELECT
-            npidata.npi,
-            pupd.practice_state
+            pupd.npi,
+            npi.practice_state
         FROM
             pupd
         LEFT JOIN npidata ON npidata.npi = pupd.npi
