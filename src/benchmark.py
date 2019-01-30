@@ -63,8 +63,9 @@ def merge_table():
         LEFT JOIN npidata ON npidata.npi = pupd.npi
     """
     engine.execute(query)
-    for row in iter_row(engine, 10):
-        print(row)
+    print("The number of parts: ", engine.rowcount)
+    row = engine.fetchone()
+    print(row)
 
 # Disable `SettingWithCopyWarning`
 pd.options.mode.chained_assignment = None
