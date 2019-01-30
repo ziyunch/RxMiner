@@ -63,7 +63,7 @@ def merge_table():
     """
     engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
     conn = engine.connect()
-    conn.execute(query)
+    engine.execute(query)
     for row in iter_row(engine, 10):
         print(row)
 
