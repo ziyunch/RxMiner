@@ -37,7 +37,7 @@ def read_npi_test(file_name, read_limit, table_name, mode):
 def read_pupd_test(year, read_limit, table_name, mode):
     df = pd.read_csv(s3_path+'pupd/medicare_pupd_'+str(year)+'.csv', nrows=read_limit)
     df["year"] = year
-    df_to_postgres(df, 'pupd')
+    df_to_postgres(df, 'pupd', 'replace')
 
 def main():
     # Disable `SettingWithCopyWarning`
