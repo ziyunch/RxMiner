@@ -80,5 +80,5 @@ s3_path = '../test/rxdata/'
 read_npi_test('npidata_pfile_20050523-20190113', test_limit, 'npidata', 'replace')
 read_pupd_test(2016, test_limit, 'pupd', 'replace')
 merge_table()
+cur.close()
 con.close()
-engine.close()
