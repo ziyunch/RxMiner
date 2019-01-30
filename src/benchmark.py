@@ -57,7 +57,7 @@ def merge_table():
     query = """
         SELECT
             pupd.npi,
-            npi.practice_state
+            npidata.practice_state
         FROM
             pupd
         LEFT JOIN npidata ON npidata.npi = pupd.npi
