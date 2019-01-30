@@ -52,30 +52,31 @@ def merge_table():
     query = """
         SELECT
             pupd.npi,
-            npi.practice_state
+            npidata.practice_state
         FROM
             pupd
         LEFT JOIN npidata ON npidata.npi = pupd.npi
     """
-    engine.execute(query)
-    for row in iter_row(engine, 10):
-        print(row)
+    cur.execute(query)
+    print("The number of parts: ", cur.rowcount)
+    rows = cur.fetchmany(size=10)
+    print(rows)
 
-def main():
-    # Disable `SettingWithCopyWarning`
-    pd.options.mode.chained_assignment = None
-    # Connect to
-    psql_user = os.getenv('POSTGRESQL_USER', 'default')
-    psql_pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
-    psql_host = os.getenv('POSTGRESQL_HOST_IP', 'default')
-    psql_port = os.getenv('POSTGRESQL_PORT', 'default')
-    psql_db = os.getenv('POSTGRESQL_DATABASE', 'default')
-    chunk_size = 100000
-    #s3_path = 's3n://rxminer/'
-    s3_path = '../test/rxdata/'
-    read_npi('npidata_pfile_20050523-20190113')
-    read_pupd(2016)
-    merge_table()
+def delete_table():
+    cur.execute("DELETE TABLE pupd, npidata")
 
-if __name__ == "__main__":
-    main()
+# Disable `SettingWithCopyWarning`
+pd.options.mode.chained_assignment = None
+engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
+con = engine.connect()
+conn = psycopg2.connect(dbname='rxdata', user='dbuser', host='localhost', password='password')
+cur = conn.cursor()
+chunk_size = 1000000
+#s3_path = 's3n://rxminer/'
+s3_path = '../test/rxdata/'
+delete_table()
+read_npi('npidata_pfile_20050523-20190113')
+read_pupd(2016)
+merge_table()
+cur.close()
+con.close()
