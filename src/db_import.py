@@ -4,10 +4,11 @@ import pandas as pd
 from sodapy import Socrata
 
 def import_soda(client_path, end_point, file_name):
-    clinet = Socrate(client_path, rxminer_token)
+    client = Socrata(client_path, rxminer_token)
     results = client.get(end_point)
     results_df = pd.DataFrame.from_records(results)
     export_csv = results_df.to_csv(r'../test/rxdata/'+file_name, index=None, header=True)
+    print('Finish downloading '+file_name)
 
 def import_pupd():
     pupd_dict = {'2016':'yvpj-pmj2', '2015':'3z4d-vmhm', '2014':'465c-49pb', '2013':'4uvc-gbfz'}
