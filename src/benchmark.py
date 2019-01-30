@@ -43,11 +43,19 @@ def main():
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
     test_limit = int(sys.argv[1])
+    global engine
+    global con
+    # Connecting to PostgreSQL by providing a sqlachemy engine
+    #engine = sa.create_engine('postgresql://'+psql_user+':'+psql_pswd+'@'+psql_host+':'+psql_port+'/'+psql_db,echo=False)
+    engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
+    con = engine.connect()
     global s3_path
     s3_path = '../test/rxdata/'
     read_npi_test('npidata_pfile_20050523-20190113', test_limit, 'npidata', 'replace')
     read_pupd_test(2016, test_limit, 'pupd', 'replace')
     merge_table()
+    con.close()
+    engine.close()
 
 if __name__ == "__main__":
     main()

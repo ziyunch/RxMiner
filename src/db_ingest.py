@@ -18,10 +18,6 @@ def df_to_postgres(df, df_name, mode):
     """
     Save DataFrame to PostgreSQL by providing sqlalchemy engine
     """
-    # Connecting to PostgreSQL by providing a sqlachemy engine
-    #engine = sa.create_engine('postgresql://'+psql_user+':'+psql_pswd+'@'+psql_host+':'+psql_port+'/'+psql_db,echo=False)
-    engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
-    conn = engine.connect()
     # Writing Dataframe to PostgreSQL and replacing table if it already exists
     df.to_sql(name=df_name, con=engine, if_exists = mode, index=False)
 
@@ -61,8 +57,6 @@ def merge_table():
             pupd
         LEFT JOIN npidata ON npidata.npi = pupd.npi
     """
-    engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
-    conn = engine.connect()
     engine.execute(query)
     for row in iter_row(engine, 10):
         print(row)
