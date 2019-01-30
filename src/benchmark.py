@@ -57,6 +57,7 @@ def merge_table():
     query = """
         SELECT
             pupd.npi,
+            pupd.nppes_provider_state
             npidata.practice_state
         FROM
             pupd
