@@ -30,7 +30,6 @@ def upload_s3():
     # Create an S3 client
     aws_access_key = os.getenv('AWS_ACCESS_KEY_ID', 'default')
     aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', 'default')
-    rxminer_token = os.getenv("SODAPY_APPTOKEN", 'default')
     conn = boto.connect_s3(aws_access_key, aws_secret_access_key)
     bucket_name = "rxminer"
     # bucket = conn.create_bucket(bucket_name)
@@ -45,4 +44,5 @@ def upload_s3():
 
 if __name__ == "__main__":
     # Connect to S3
+    rxminer_token = os.getenv("SODAPY_APPTOKEN", 'default')
     import_medicaid()
