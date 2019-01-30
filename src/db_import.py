@@ -52,7 +52,7 @@ def main():
 
     # Unauthenticated client only works with public data sets. Note 'None'
     # in place of application token, and no username or password:
-    client = Socrata("data.medicaid.gov", rxminer_token)
+    client = Socrata("data.cms.gov", rxminer_token)
     # Example authenticated client (needed for non-public datasets):
     # client = Socrata(data.medicaid.gov,
     #                  MyAppToken,
@@ -61,31 +61,27 @@ def main():
 
     # First 2000 results, returned as JSON from API / converted to Python list of
     # dictionaries by sodapy.
-    results = client.get("neai-csgh", limit=10000)
+    results = client.get("xbte-dn4t", limit=10000)
     results_df = pd.DataFrame.from_records(results)
-    export_csv = results_df.to_csv(r'../test/sample/medicaid-sdud-2016.csv', index=None, header=True)
+    export_csv = results_df.to_csv(r'../pupd/medicare_pupd_2016.csv', index=None, header=True)
 
-    client = Socrata("data.cms.gov", rxminer_token)
-    results = client.get("haqy-eqp7", limit=10000)
+    results = client.get("3z4d-vmhm")
     results_df = pd.DataFrame.from_records(results)
-    export_csv = results_df.to_csv(r'../test/sample/medicare-puf-2016.csv', index=None, header=True)
+    export_csv = results_df.to_csv(r'../pupd/medicare-puf-2015.csv', index=None, header=True)
 
-    results = client.get("ep4w-t37d", limit=10000)
+    results = client.get("ep4w-t37d")
     results_df = pd.DataFrame.from_records(results)
     export_csv = results_df.to_csv(r'../test/sample/medicare-partd-puf-2016.csv', index=None, header=True)
 
     client = Socrata("openpaymentsdata.cms.gov", rxminer_token)
-    results = client.get("a3k9-9uq3", limit=10000)
+    results = client.get("a3k9-9uq3")
     results_df = pd.DataFrame.from_records(results)
-    export_csv = results_df.to_csv(r'../test/sample/openpayment-gen-2016.csv', index=None, header=True)
+    export_csv = results_df.to_csv(r'../openpayment/openpayment-gen-2016.csv', index=None, header=True)
 
     client = Socrata("data.wa.gov", rxminer_token)
     results = client.get("t8zq-rh9q", limit=10000, clinicUse="y")
     results_df = pd.DataFrame.from_records(results)
     export_csv = results_df.to_csv(r'../test/sample/wa-pmp-2016q1.csv', index=None, header=True)
-
-
-
 
     """
     soda_api = "https://data.medicaid.gov/api/views/3v6v-qk5s/rows.csv?accessType=DOWNLOAD"
