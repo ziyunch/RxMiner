@@ -26,7 +26,7 @@ def upload_pupd():
     # files automatically and upload parts in parallel.
     s3.upload_file(filename, bucket_name, filename)
 
-def main():
+if __name__ == "__main__":
     # Connect to S3
     aws_access_key = os.getenv('AWS_ACCESS_KEY_ID', 'default')
     aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', 'default')
@@ -37,6 +37,3 @@ def main():
     bucket = conn.get_bucket(bucket_name)
     object_key = "rx_data/"
     import_pupd()
-
-if __name__ == "__main__":
-    main()
