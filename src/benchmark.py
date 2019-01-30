@@ -43,8 +43,8 @@ def main():
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
     test_limit = int(sys.argv[1])
-    engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
-    conn = engine.connect()
+    global engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
+    global conn = engine.connect()
     global s3_path
     s3_path = '../test/rxdata/'
     read_npi_test('npidata_pfile_20050523-20190113', test_limit, 'npidata', 'replace')
