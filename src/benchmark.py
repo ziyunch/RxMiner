@@ -40,7 +40,7 @@ def read_pupd_test(year, read_limit, table_name, mode):
 def main():
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
-    test_limit = sys.argv[1]
+    test_limit = int(sys.argv[1])
     engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
     conn = engine.connect()
     global s3_path
