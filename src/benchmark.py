@@ -33,7 +33,6 @@ def df_to_postgres(df, table_name, mode):
     curs = raw.cursor()
     curs.execute("DROP TABLE " + table_name)
     empty_table = pd.io.sql.get_schema(df, table_name, con = engine)
-    empty_table = empty_table.replace('"', '')
     curs.execute(empty_table)
     curs.copy_from(data, table_name, sep = ',')
     curs.connection.commit()
