@@ -35,12 +35,12 @@ def df_to_postgres(df, table_name, mode):
     empty_table = pd.io.sql.get_schema(df, table_name, con = engine)
     empty_table = empty_table.replace('"', '')
     curs.execute(empty_table)
-    query = """
+    sql_query = """
         COPY %s FROM STDIN WITH
             CSV
             HEADER
-    """
-    curs.copy_expert(sql=query % table_name, data)
+        """
+    curs.copy_expert(sql=sql_query % table_name, file=data)
     curs.connection.commit()
 
 def read_medicaid(year, mode):
