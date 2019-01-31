@@ -10,6 +10,13 @@ import sqlalchemy as sa # Package for accessing SQL databases via Python
 import StringIO
 #import cProfile, pstats, StringIO
 
+def cleanColumns(columns):
+    cols = []
+    for col in columns:
+        col = col.replace(' ', '_')
+        cols.append(col)
+    return cols
+
 def pd_to_postgres(df, table_name, mode):
     """
     Save DataFrame to PostgreSQL by providing sqlalchemy engine
