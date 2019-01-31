@@ -1,6 +1,6 @@
 import os
 import psycopg2
-import sqlalchemy
+import sqlalchemy as sa
 
 def sum_by_state():
     query = """
