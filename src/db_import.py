@@ -46,3 +46,4 @@ if __name__ == "__main__":
     # Connect to S3
     rxminer_token = os.getenv("SODAPY_APPTOKEN", 'default')
     import_medicaid()
+    import_medicare()
