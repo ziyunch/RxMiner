@@ -6,9 +6,9 @@ def sum_by_state():
     query = """
         SELECT SUM(total_claim_count), practice_state
         FROM pupd_cleaned
-        GROUP BY pupd_cleaned;
+        GROUP BY pupd_cleaned;p p
     """
-    engine.execute(query)
+    cur.execute(query)
     print("The number of parts: ", cur.rowcount)
     rows = cur.fetchmany(size=10)
     print(rows)
@@ -25,7 +25,7 @@ def merge_npi():
             pupd
         LEFT JOIN npidata ON (npidata.npi = pupd.npi AND npidata.last_name = pupd.nppes_provider_last_org_name);
     """
-    engine.execute(query)
+    cur.execute(query)
     print("The number of parts: ", cur.rowcount)
     rows = cur.fetchmany(size=10)
     print(rows)
