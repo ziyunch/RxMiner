@@ -29,7 +29,7 @@ def df_to_postgres(df, table_name, mode):
     df.columns = cleanColumns(df.columns)
     df.to_csv(data, header=False, index=False)
     data.seek(0)
-    raw = con.raw_connection()
+    raw = engine.raw_connection()
     curs = raw.cursor()
     curs.execute("DROP TABLE " + table_name)
     empty_table = pd.io.sql.get_schema(df, table_name, con = con)
