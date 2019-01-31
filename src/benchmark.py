@@ -69,9 +69,9 @@ def merge_table():
             sdudtest
         LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest
     """
-    cur.execute(query)
+    engine.execute(query)
     print("The number of parts: ", cur.rowcount)
-    row = cur.fetchone()
+    row = engine.fetchone()
     print(row)
 
 if __name__ == "__main__":
@@ -87,7 +87,6 @@ if __name__ == "__main__":
         port = '5432'
         dbname = 'postgres'
         engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
-        conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
     else:
         print("Connect to AWS Redshift")
         user = os.getenv('REDSHIFT_USER', 'default')
@@ -96,9 +95,7 @@ if __name__ == "__main__":
         port = '5439'
         dbname = 'rxtest'
         engine = sa.create_engine('redshift+psycopg2://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
-        conn = psycopg2.connect(dbname=dbname, user=user, host=host, port=port, password=pswd)
     con = engine.connect()
-    cur = conn.cursor()
     print("Connected")
     s3_path = 's3n://rxminer/'
     #s3_path = '../test/rxdata/'
@@ -115,5 +112,4 @@ if __name__ == "__main__":
     end = time.time()
     print(end - start)
     print(end - start0)
-    cur.close()
     con.close()
