@@ -132,7 +132,8 @@ if __name__ == "__main__":
     chunk_size = 100000
     s3_path = 's3n://rxminer/'
     #s3_path = '../test/rxdata/'
-    read_drugndc('append')
+    read_drugndc('replace')
+    print('Finish Reading NDC')
     # read_npi('npidata_pfile_20050523-20190113', 'append')
     #read_medicare(2016, 'append')
     #read_medicaid(2016, 'append')
