@@ -64,15 +64,27 @@ def merge_table():
     query = """
         SELECT
             sdudtest.ndc,
+            sdudtest.tot_reimbursed,
             ndctest.generic_name
+        INTO
+            sdud_cleaned
         FROM
             sdudtest
-        LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest
+        LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest.ndc
     """
     engine.execute(query)
-    print("The number of parts: ", cur.rowcount)
-    row = engine.fetchone()
-    print(row)
+    rows = engine.fetchmany(size=10)
+    print(rows)
+
+def sum_by_state():
+    query = """
+        SELECT SUM(tot_reimbursed), generic_name
+        FROM sdud_cleaned
+        GROUP BY generic_name;
+    """
+    engine.execute(query)
+    rows = engine.fetchmany(size=10)
+    print(rows)
 
 if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
@@ -99,16 +111,17 @@ if __name__ == "__main__":
     print("Connected")
     s3_path = 's3n://rxminer/'
     start0 = time.time()
-    read_drugndc('replace')
-    end = time.time()
-    print(end - start0)
-    start = time.time()
-    read_medicaid(2016, 'replace')
-    end = time.time()
-    print(end - start)
-    start = time.time()
+    #read_drugndc('replace')
+    #end = time.time()
+    #print(end - start0)
+    #start = time.time()
+    #read_medicaid(2016, 'replace')
+    #end = time.time()
+    #print(end - start)
+    #start = time.time()
     merge_table()
+    sum_by_state()
     end = time.time()
-    print(end - start)
+    #print(end - start)
     print(end - start0)
     con.close()
