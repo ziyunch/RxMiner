@@ -35,8 +35,8 @@ def read_medicaid(year, mode):
         dtype = d_type,
         skiprows = 1,
         nrows = test_limit)
-        df = df.dropna(subset=['tot_reimbursed'])
-        df_to_postgres(df, psql_table, mode)
+    df = df.dropna(subset=['tot_reimbursed'])
+    df_to_postgres(df, psql_table, mode)
     print('Finish Reading Medicaid data and save in table '+psql_table)
 
 def convert_ndc(ndc):
