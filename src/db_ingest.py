@@ -134,11 +134,12 @@ if __name__ == "__main__":
     # engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
     engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
     con = engine.connect()
-    # conn = psycopg2.connect(dbname='rxdata', user='dbuser', host='localhost', password='password')
+    # conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
     # cur = conn.cursor()
     chunk_size = 100000
     s3_path = 's3n://rxminer/'
     #s3_path = '../test/rxdata/'
+    print("PostgreSQL connected")
     # read_drugndc('replace')
     read_medicaid(2016, 'append')
     read_npi('npidata_pfile_20050523-20190113', 'append')
