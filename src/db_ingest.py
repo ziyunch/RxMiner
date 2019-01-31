@@ -123,7 +123,7 @@ if __name__ == "__main__":
     pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
     host = os.getenv('POSTGRESQL_HOST_IP', 'default')
     port = os.getenv('POSTGRESQL_PORT', 'default')
-    dbname = os.getenv('POSTGRESQL_DATABASE', 'default')
+    dbname = 'postgres'
     # engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
     engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
     con = engine.connect()
