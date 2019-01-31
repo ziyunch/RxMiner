@@ -35,9 +35,8 @@ def df_to_postgres(df, table_name, mode):
     empty_table = pd.io.sql.get_schema(df, table_name, con = engine)
     empty_table = empty_table.replace('"', '')
     curs.execute(empty_table)
-    curs.copy_expert("COPY data TO "+table_name+" WITH CSV HEADER", table_name)
+    curs.copy_expert("COPY data TO "+table_name+" WITH CSV HEADER", data)
     curs.connection.commit()
-
 
 def read_medicaid(year, mode):
     type_dir = 'sdud/medicaid_sdud_'
