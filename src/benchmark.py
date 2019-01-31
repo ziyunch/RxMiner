@@ -7,6 +7,7 @@ import pandas as pd
 import json
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
+import cProfile, pstats, StringIO
 
 def df_to_postgres(df, df_name, mode):
     """
@@ -87,6 +88,8 @@ def sum_by_state():
     print(rows)
 
 if __name__ == "__main__":
+    pr = cProfile.Profile()
+    pr.enable()
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
     test_limit = int(sys.argv[1])
@@ -127,5 +130,11 @@ if __name__ == "__main__":
     print(end - start)
     print(end - start0)
     con.close()
+    pr.disable()
+    s = StringIO.StringIO()
+    sortby = 'cumulative'
+    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    ps.print_stats()
+    print s.getvalue()
     #conn.close()
     #cur.close()
