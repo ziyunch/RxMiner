@@ -96,7 +96,7 @@ if __name__ == "__main__":
         port = '5439'
         dbname = 'rxtest'
         engine = sa.create_engine('redshift+psycopg2://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
-        conn = psycopg2.connect(dbname=dbname, user=user, host=host, port=port, password=pswd)
+        conn = psycopg2.connect(dbname=dbname, user=user, host=host, port=int(port), password=pswd)
     con = engine.connect()
     cur = conn.cursor()
     print("Connected")
