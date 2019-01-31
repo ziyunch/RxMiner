@@ -6,7 +6,7 @@ def sum_by_state():
     sql_query = """
         SELECT SUM(total_claim_count), practice_state
         FROM pupd_cleaned
-        GROUP BY pupd_cleaned;p p
+        GROUP BY pupd_cleaned;
     """
     cur.execute(sql_query)
     print("The number of parts: ", cur.rowcount)
