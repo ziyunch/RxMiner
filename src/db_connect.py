@@ -24,8 +24,14 @@ class db_connect:
     self.engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
     self.con = engine.connect()
 
-def get_connection(self):
+def get_engine(self):
     return self.engine, self.con
 
-def close_connection(self):
+def get_conn(self):
+    return self.conn, self.cur
+
+def close_conn(self):
     self.con.close()
+
+def close_engine(self):
+    self.cur.close()

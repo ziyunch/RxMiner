@@ -1,14 +1,23 @@
 import os
 import sys
 import time
+import datetime
+import pytz
 import boto
 import boto3
+import s3fs
 import pandas as pd
 import json
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
 import StringIO
-#import cProfile, pstats, StringIO
+
+def pd_to_postgres(df, table_name, mode):
+    """
+    Save DataFrame to PostgreSQL by to_sql() function.
+    """
+    # Writing Dataframe to PostgreSQL and replacing table if it already exists
+    df.to_sql(name=table_name, con=engine, if_exists = mode, index=False)
 
 def cleanColumns(columns):
     cols = []
@@ -17,35 +26,73 @@ def cleanColumns(columns):
         cols.append(col)
     return cols
 
-def pd_to_postgres(df, table_name, mode):
+def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
     """
-    Save DataFrame to PostgreSQL by providing sqlalchemy engine
+    Save DataFrame to .csv, read csv as sql table in memory and copy the table
+     directly in batch to PostgreSQL or Redshift.
     """
-    # Writing Dataframe to PostgreSQL and replacing table if it already exists
-    df.to_sql(name=df_name, con=engine, if_exists = mode, index=False)
-
-def df_to_postgres(df, table_name, mode):
-    data = StringIO.StringIO()
+    # Prepare schema for table
+    df[:0].to_sql('temp', engine, if_exists = "replace", index=False)
     df.columns = cleanColumns(df.columns)
-    df.to_csv(data, header=False, index=False)
-    data.seek(0)
-    raw = engine.raw_connection()
-    curs = raw.cursor()
-    curs.execute("DROP TABLE " + table_name)
-    empty_table = pd.io.sql.get_schema(df, table_name, con = engine)
-    empty_table = empty_table.replace('"', '')
-    curs.execute(empty_table)
-    query = """
-        COPY %s FROM STDIN WITH
+    # replace mode
+    if mode == 'replace':
+        cur.execute("DROP TABLE " + table_name)
+        cur.connection.commit()
+    # Prepare data to temp
+    if psql == 'psql':
+        data = StringIO.StringIO()
+        df.to_csv(data, header=False, index=False)
+        data.seek(0)
+        sql_query = """
+            COPY temp FROM STDIN WITH
+                CSV
+                HEADER;
+        """
+        cur.copy_expert(sql=sql_query, file=data)
+        cur.connection.commit()
+        # Copy or append table temp to target table
+        if (mode == 'replace' or new_table == 0):
+            sql_query2 = """
+                ALTER TABLE temp
+                RENAME TO %s;
+            """
+        else:
+            sql_query2 = """
+                INSERT INTO %s SELECT * FROM temp;
+                DROP TABLE temp;
+            """
+        cur.execute(sql_query2 % table_name)
+        cur.connection.commit()
+    else:
+        with s3.open('rxminer/temp.csv', 'wb') as f:
+            df.to_csv(f, index=False, header=False)
+        sql_query = """
+            COPY temp
+            FROM 's3://rxminer/temp.csv'
+            IAM_ROLE 'arn:aws:iam::809946175142:role/RedshiftCopyUnload'
             CSV
-            HEADER
-    """
-    curs.copy_expert(sql=query % table_name, data)
-    curs.connection.commit()
+            IGNOREHEADER 1;
+            COMMIT;
+        """
+        cur.execute(sql_query)
+        # Copy or append table temp to target table
+        if (mode == 'replace' or new_table == 0):
+            sql_query2 = """
+                ALTER TABLE temp
+                RENAME TO %s;
+                COMMIT;VACUUM;COMMIT;
+            """
+        else:
+            sql_query2 = """
+                INSERT INTO %s SELECT * FROM temp;
+                DROP TABLE temp;
+                COMMIT;VACUUM;COMMIT;
+            """
+        cur.execute(sql_query2 % table_name)
 
 def read_medicaid(year, mode):
     type_dir = 'sdud/medicaid_sdud_'
-    psql_table = 'sdudtest'
+    table_name = 'sdudtest'
     cols_to_keep = [1,5,7,9,10,11,12,13,19]
     column_names = [
         'state', 'year', 'drug_name',
@@ -54,16 +101,23 @@ def read_medicaid(year, mode):
         'nonmedicaid_reimbursed', 'ndc'
         ]
     d_type = {'ndc': str}
-    df = pd.read_csv(
+    chunks = pd.read_csv(
         s3_path+type_dir+str(year)+'.csv',
         usecols = cols_to_keep,
         names = column_names,
         dtype = d_type,
         skiprows = 1,
-        nrows = test_limit)
-    df = df.dropna(subset=['tot_reimbursed'])
-    df_to_postgres(df, psql_table, mode)
-    print('Finish Reading Medicaid data and save in table '+psql_table)
+        chunksize = chunk_size)
+    new_table = 0
+    for chunk in chunks:
+        chunk.dropna(subset=['tot_reimbursed'], inplace=True)
+        if pd2db == "yes":
+            pd_to_postgres(chunk, table_name, mode)
+        else:
+            df_to_sql(chunk, table_name, mode, new_table, psql, cur, engine)
+        new_table += 1
+        print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Medicaid data: reading in progress...')
+    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading Medicaid data and save in table '+table_name)
 
 def convert_ndc(ndc):
     temp = ndc.split('-')
@@ -72,6 +126,8 @@ def convert_ndc(ndc):
     return ndc
 
 def read_drugndc(mode):
+    new_table = 0
+    table_name = 'ndctest'
     s3 = boto3.resource('s3')
     content_object = s3.Object('rxminer', 'openfda/drug-ndc-0001-of-0001.json')
     file_content = content_object.get()['Body'].read().decode('utf-8')
@@ -85,24 +141,28 @@ def read_drugndc(mode):
     df = df[['package_ndc', 'generic_name', 'brand_name', 'labeler_name']]
     # Standardlize dashed NDC to CMS 11 digits NDC
     df.package_ndc = df.package_ndc.apply(convert_ndc)
-    df_to_postgres(df, 'ndctest', mode)
-    print('Finish Reading NDC and save in table ndcdata')
+    df.generic_name = df.generic_name.apply(lambda x: x[:255])
+    if pd2db == "yes":
+        pd_to_postgres(df, table_name, mode)
+    else:
+        df_to_sql(df, table_name, mode, new_table, psql, cur, engine)
+    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading NDC and save in table ndcdata')
 
 def merge_table():
     query = """
-SELECT
-    sdudtest.ndc,
-    sdudtest.tot_reimbursed,
-    ndctest.generic_name
-INTO
-    sdud_cleaned
-FROM
-    sdudtest
-LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest.ndc;
+        SELECT
+            sdudtest.ndc,
+            sdudtest.tot_reimbursed,
+            ndctest.generic_name
+        INTO
+            sdud_cleaned
+        FROM
+            sdudtest
+        LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest.ndc;
+        SELECT * FROM sdud_cleaned LIMIT 10;
     """
     cur.execute(query)
-    rows = cur.fetchmany(size=10)
-    print(rows)
+    conn.commit()
 
 def sum_by_state():
     query = """
@@ -111,57 +171,65 @@ def sum_by_state():
         GROUP BY generic_name;
     """
     cur.execute(query)
-    rows = cur.fetchmany(size=10)
-    print(rows)
+    conn.commit()
 
 if __name__ == "__main__":
-#    pr = cProfile.Profile()
-#    pr.enable()
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
-    test_limit = int(sys.argv[1])
+    eastern = pytz.timezone('US/Eastern')
+    new_table = 0
+    chunk_size = int(sys.argv[1])
     psql = sys.argv[2]
+    psyc = sys.argv[3]
+    sraw = sys.argv[4]
+    pd2db = sys.argv[5]
     if psql == "psql":
-        print("Connect to PostgreSQL on AWS RDS")
+        print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connect to PostgreSQL on AWS RDS')
         user = os.getenv('POSTGRESQL_USER', 'default')
         pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
         host = 'psql-test.csjcz7lmua3t.us-east-1.rds.amazonaws.com'
         port = '5432'
         dbname = 'postgres'
-        engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
-        #conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
+        surl = 'postgresql://'
     else:
-        print("Connect to AWS Redshift")
+        print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connect to AWS Redshift')
         user = os.getenv('REDSHIFT_USER', 'default')
         pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
         host = 'redshift-test.cgcoq5ionbrp.us-east-1.redshift.amazonaws.com'
         port = '5439'
         dbname = 'rxtest'
-        engine = sa.create_engine('redshift+psycopg2://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
-    con = engine.connect()
-    #cur = conn.cursor()
-    print("Connected")
+        surl = 'redshift+psycopg2://'
+        s3 = s3fs.S3FileSystem(anon=False)
+    if psyc == "psycopg2":
+        print("Using Psycopg2")
+        conn = psycopg2.connect(dbname=dbname, user=user, host=host, port=port, password=pswd)
+    else:
+        engine = sa.create_engine(surl+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
+        if sraw == "raw":
+            conn = engine.raw_connection()
+        else:
+            con = engine.connect()
+            conn = con.connection
+    cur = conn.cursor()
+    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connected')
     s3_path = 's3n://rxminer/'
     start0 = time.time()
-    read_drugndc('replace')
-    end = time.time()
-    print(end - start0)
     start = time.time()
-    read_medicaid(2016, 'replace')
+    if (psyc == "sqlalchemy" and sraw == "no") :
+        read_medicaid(2016, 'append')
     end = time.time()
     print(end - start)
     start = time.time()
-    #merge_table()
-    #sum_by_state()
+    if (psyc == "sqlalchemy" and sraw == "no"):
+        read_drugndc('append')
+    end = time.time()
+    print(end - start)
+    start = time.time()
+    merge_table()
+    sum_by_state()
     end = time.time()
     print(end - start)
     print(end - start0)
-    con.close()
-#    pr.disable()
-#    s = StringIO.StringIO()
-#    sortby = 'cumulative'
-#    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-#    ps.print_stats()
-#    print s.getvalue()
-    #conn.close()
-    #cur.close()
+    cur.close()
+    conn.close()
+    if (psyc == "sqlalchemy" and sraw == "no") : con.close()

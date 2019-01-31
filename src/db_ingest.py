@@ -100,6 +100,7 @@ def read_drugndc(mode):
     # Key Error bug when meta=['product_id', 'generic_name']
     df1 = pd.io.json.json_normalize(json_content['results'], 'packaging', meta=['product_id'])
     df2 = pd.io.json.json_normalize(json_content['results'])
+    df3 = pd.io.json.json_normalize(json_content['results'], 'active_ingredients', meta=['product_id'])
     df = df1.merge(df2, on='product_id')
     # Compress the dataframe by dropping unneccssary information
     df = df[['package_ndc', 'generic_name', 'brand_name', 'labeler_name']]
@@ -107,23 +108,6 @@ def read_drugndc(mode):
     df.package_ndc = df.package_ndc.apply(convert_ndc)
     df_to_postgres(df, 'ndcdata', mode)
     print(datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')+' Finish Reading NDC and save in table ndcdata')
-
-def merge_table():
-    query = """
-        SELECT
-            pupd.npi,
-            npidata.practice_state
-        FROM
-            pupd
-        LEFT JOIN npidata ON npidata.npi = pupd.npi
-    """
-    cur.execute(query)
-    print("The number of parts: ", cur.rowcount)
-    rows = cur.fetchmany(size=10)
-    print(rows)
-
-def delete_table():
-    cur.execute("DELETE TABLE pupd, npidata")
 
 if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
@@ -133,7 +117,6 @@ if __name__ == "__main__":
     host = os.getenv('POSTGRESQL_HOST_IP', 'default')
     port = os.getenv('POSTGRESQL_PORT', 'default')
     dbname = 'postgres'
-    # engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
     engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
     con = engine.connect()
     # conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
