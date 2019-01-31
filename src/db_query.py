@@ -38,8 +38,11 @@ if __name__ == "__main__":
     dbname = 'postgres'
     engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
     con = engine.connect()
-    cur = con.cursor()
+    conn = engine.raw_connection()
+    cur = conn.cursor()
     print("PostgreSQL connected")
     merge_npi()
     sum_by_state()
+    cur.close()
+    conn.close()
     con.close()
