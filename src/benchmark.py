@@ -62,15 +62,15 @@ def read_drugndc(mode):
 
 def merge_table():
     query = """
-        SELECT
-            sdudtest.ndc,
-            sdudtest.tot_reimbursed,
-            ndctest.generic_name
-        INTO
-            sdud_cleaned
-        FROM
-            sdudtest
-        LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest.ndc
+SELECT
+    sdudtest.ndc,
+    sdudtest.tot_reimbursed,
+    ndctest.generic_name
+INTO
+    sdud_cleaned
+FROM
+    sdudtest
+LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest.ndc;
     """
     cur.execute(query)
     rows = cur.fetchmany(size=10)
@@ -98,8 +98,8 @@ if __name__ == "__main__":
         host = 'psql-test.csjcz7lmua3t.us-east-1.rds.amazonaws.com'
         port = '5432'
         dbname = 'postgres'
-        #engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
-        conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
+        engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
+        #conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
     else:
         print("Connect to AWS Redshift")
         user = os.getenv('REDSHIFT_USER', 'default')
@@ -108,23 +108,24 @@ if __name__ == "__main__":
         port = '5439'
         dbname = 'rxtest'
         engine = sa.create_engine('redshift+psycopg2://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
-    #con = engine.connect()
-    cur = conn.cursor()
+    con = engine.connect()
+    #cur = conn.cursor()
     print("Connected")
     s3_path = 's3n://rxminer/'
     start0 = time.time()
-    #read_drugndc('replace')
-    #end = time.time()
-    #print(end - start0)
-    #start = time.time()
-    #read_medicaid(2016, 'replace')
-    #end = time.time()
-    #print(end - start)
-    #start = time.time()
-    merge_table()
-    sum_by_state()
+    read_drugndc('replace')
     end = time.time()
-    #print(end - start)
     print(end - start0)
-    conn.close()
-    cur.close()
+    start = time.time()
+    read_medicaid(2016, 'replace')
+    end = time.time()
+    print(end - start)
+    start = time.time()
+    #merge_table()
+    #sum_by_state()
+    end = time.time()
+    print(end - start)
+    print(end - start0)
+    con.close()
+    #conn.close()
+    #cur.close()
