@@ -23,7 +23,7 @@ def merge_npi():
             pupd_cleaned
         FROM
             pupd
-        LEFT_JOIN npidata ON (npidata.npi = pupd.npi AND npidata.last_name = pupd.nppes_provider_last_org_name)
+        LEFT JOIN npidata ON (npidata.npi = pupd.npi AND npidata.last_name = pupd.nppes_provider_last_org_name)
     """
     engine.execute(query)
     print("The number of parts: ", cur.rowcount)
