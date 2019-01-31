@@ -98,7 +98,6 @@ if __name__ == "__main__":
     con = engine.connect()
     print("Connected")
     s3_path = 's3n://rxminer/'
-    #s3_path = '../test/rxdata/'
     start0 = time.time()
     read_drugndc('replace')
     end = time.time()
@@ -108,7 +107,7 @@ if __name__ == "__main__":
     end = time.time()
     print(end - start)
     start = time.time()
-    merge_talbe()
+    merge_table()
     end = time.time()
     print(end - start)
     print(end - start0)
