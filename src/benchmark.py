@@ -73,7 +73,7 @@ def merge_table():
         LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest.ndc
     """
     engine.execute(query)
-    rows = con.fetchmany(size=10)
+    rows = cur.fetchmany(size=10)
     print(rows)
 
 def sum_by_state():
@@ -83,7 +83,7 @@ def sum_by_state():
         GROUP BY generic_name;
     """
     engine.execute(query)
-    rows = con.fetchmany(size=10)
+    rows = cur.fetchmany(size=10)
     print(rows)
 
 if __name__ == "__main__":
@@ -108,6 +108,7 @@ if __name__ == "__main__":
         dbname = 'rxtest'
         engine = sa.create_engine('redshift+psycopg2://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
     con = engine.connect()
+    cur = con.cursor()
     print("Connected")
     s3_path = 's3n://rxminer/'
     start0 = time.time()
