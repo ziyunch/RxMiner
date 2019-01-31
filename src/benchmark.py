@@ -1,19 +1,14 @@
 import os
 import sys
+import time
 import boto
+import boto3
 import pandas as pd
+import json
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
 
-def clean_npi(df):
-    """
-    Clean up NPI table
-    """
-    df = df.dropna(subset=['entity_type_code'])
-    df.practice_postal = df.practice_postal.str.slice(0, 5)
-    df.loc[df.practice_country != 'US', 'practice_state'] = "XX"
-    df.loc[df.practice_country != 'US', 'practice_postal'] = "00000"
-    return(df)
+test = True
 
 def df_to_postgres(df, df_name, mode):
     """
@@ -22,46 +17,59 @@ def df_to_postgres(df, df_name, mode):
     # Writing Dataframe to PostgreSQL and replacing table if it already exists
     df.to_sql(name=df_name, con=engine, if_exists = mode, index=False)
 
-def import_test_db(read_limit):
-    client = Socrata("data.medicaid.gov", rxminer_token)
-    results = client.get("neai-csgh", limit=read_limit)
-    results_df = pd.DataFrame.from_records(results)
-    export_csv = results_df.to_csv(r'../test/sample/medicaid-sdud-2016-'+read_limit+'.csv', index=None, header=True)
-
-def read_npi_test(file_name, read_limit, table_name, mode):
-    cols_to_keep = [0,1,4,5,6,31,32,33]
+def read_medicaid(year, mode):
+    type_dir = 'sdud/medicaid_sdud_'
+    psql_table = 'sdudtest'
+    cols_to_keep = [1,5,7,9,10,11,12,13,19]
     column_names = [
-        'npi', 'entity_type_code',
-        'organize_name',
-        'last_name', 'first_name',
-        'practice_state', 'practice_postal', 'practice_country'
+        'state', 'year', 'drug_name',
+        'unit_reimbursed', 'num_prescriptions',
+        'tot_reimbursed', 'medicaid_reimbursed',
+        'nonmedicaid_reimbursed', 'ndc'
         ]
-    d_type = {'practice_postal': str}
-    # Read NPI file in chunk to reduce memory usage
+    d_type = {'ndc': str}
     df = pd.read_csv(
-        s3_path+'npi/'+file_name+'.csv',
+        s3_path+type_dir+str(year)+'.csv',
         usecols = cols_to_keep,
         names = column_names,
         dtype = d_type,
-        nrows = read_limit,
-        skiprows = 1)
-    clean_npi(df)
-    df_to_postgres(df, table_name, mode)
+        skiprows = 1,
+        nrows = test_limit)
+        df = df.dropna(subset=['tot_reimbursed'])
+        df_to_postgres(df, psql_table, mode)
+    print('Finish Reading Medicaid data and save in table '+psql_table)
 
-def read_pupd_test(year, read_limit, table_name, mode):
-    df = pd.read_csv(s3_path+'pupd/medicare_pupd_'+str(year)+'.csv', nrows=read_limit)
-    df["year"] = year
-    df_to_postgres(df, table_name, mode)
+def convert_ndc(ndc):
+    temp = ndc.split('-')
+    if len(temp) == 3:
+        ndc = temp[0].zfill(5)+temp[1].zfill(4)+temp[2].zfill(2)
+    return ndc
+
+def read_drugndc(mode):
+    s3 = boto3.resource('s3')
+    content_object = s3.Object('rxminer', 'openfda/drug-ndc-0001-of-0001.json')
+    file_content = content_object.get()['Body'].read().decode('utf-8')
+    json_content = json.loads(file_content)
+    # Flattern the deeply nested json files
+    # Key Error bug when meta=['product_id', 'generic_name']
+    df1 = pd.io.json.json_normalize(json_content['results'], 'packaging', meta=['product_id'])
+    df2 = pd.io.json.json_normalize(json_content['results'])
+    df = df1.merge(df2, on='product_id')
+    # Compress the dataframe by dropping unneccssary information
+    df = df[['package_ndc', 'generic_name', 'brand_name', 'labeler_name']]
+    # Standardlize dashed NDC to CMS 11 digits NDC
+    df.package_ndc = df.package_ndc.apply(convert_ndc)
+    df_to_postgres(df, 'ndctest', mode)
+    print('Finish Reading NDC and save in table ndcdata')
 
 def merge_table():
     query = """
         SELECT
-            pupd-test.npi,
-            pupd-test.nppes_provider_state
-            npidata-test.practice_state
+            sdudtest.ndc,
+            ndctest.generic_name
         FROM
-            pupd-test
-        LEFT JOIN npidata-test ON npidata-test.npi = pupd-test.npi
+            sdudtest
+        LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest
     """
     cur.execute(query)
     print("The number of parts: ", cur.rowcount)
@@ -72,16 +80,39 @@ if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
     test_limit = int(sys.argv[1])
-    # Connecting to PostgreSQL by providing a sqlachemy engine
-    #engine = sa.create_engine('postgresql://'+psql_user+':'+psql_pswd+'@'+psql_host+':'+psql_port+'/'+psql_db,echo=False)
-    engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
+    psql = int(sys.argv[2])
+    if psql:
+        user = os.getenv('POSTGRESQL_USER', 'default')
+        pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
+        host = 'psql-test.csjcz7lmua3t.us-east-1.rds.amazonaws.com'
+        port = '5432'
+        dbname = 'postgres'
+        engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
+    else:
+        user = os.getenv('REDSHIFT_USER', 'default')
+        pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
+        host = 'redshift-test.cgcoq5ionbrp.us-east-1.redshift.amazonaws.com:5439'
+        port = '5439'
+        dbname = 'rxtest'
+        engine = sa.create_engine('redshift+psycopg2://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
     con = engine.connect()
-    conn = psycopg2.connect(dbname='rxdata', user='dbuser', host='localhost', password='password')
-    cur = conn.cursor()
-    s3_path = 's3n://rxminer'
-    # s3_path = '../test/rxdata/'
-    read_npi_test('npidata_pfile_20050523-20190113', test_limit, 'npidata-test', 'replace')
-    read_pupd_test(2016, test_limit, 'pupd-test', 'replace')
-    merge_table()
+    # conn = psycopg2.connect(dbname='rxtest', user='dbuser', host='localhost', password='password')
+    # cur = conn.cursor()
+    chunk_size = 100000
+    s3_path = 's3n://rxminer/'
+    #s3_path = '../test/rxdata/'
+    start0 = time.time()
+    read_drugndc('replace')
+    end = time.time()
+    print(end - start0)
+    start = time.time()
+    read_medicaid(2016, 'append')
+    end = time.time()
+    print(end - start)
+    start = time.time()
+    merge_talbe()
+    end = time.time()
+    print(end - start)
+    print(end - start0)
     cur.close()
     con.close()
