@@ -31,10 +31,11 @@ def df_to_postgres(df, table_name, mode):
     data.seek(0)
     raw = engine.raw_connection()
     curs = raw.cursor()
-    curs.execute("DROP TABLE " + table_name)
-    empty_table = pd.io.sql.get_schema(df, table_name, con = engine)
-    empty_table = empty_table.replace('"', '')
-    curs.execute(empty_table)
+    if mode == 'replace':
+        curs.execute("DROP TABLE " + table_name)
+        empty_table = pd.io.sql.get_schema(df, table_name, con = engine)
+        empty_table = empty_table.replace('"', '')
+        curs.execute(empty_table)
     sql_query = """
         COPY %s FROM STDIN WITH
             CSV
