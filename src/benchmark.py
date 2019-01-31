@@ -73,7 +73,7 @@ def merge_table():
         LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest.ndc
     """
     engine.execute(query)
-    rows = engine.fetchmany(size=10)
+    rows = con.fetchmany(size=10)
     print(rows)
 
 def sum_by_state():
@@ -83,7 +83,7 @@ def sum_by_state():
         GROUP BY generic_name;
     """
     engine.execute(query)
-    rows = engine.fetchmany(size=10)
+    rows = con.fetchmany(size=10)
     print(rows)
 
 if __name__ == "__main__":
