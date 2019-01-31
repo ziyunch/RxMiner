@@ -72,7 +72,7 @@ def merge_table():
             sdudtest
         LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest.ndc
     """
-    engine.execute(query)
+    cur.execute(query)
     rows = cur.fetchmany(size=10)
     print(rows)
 
@@ -82,7 +82,7 @@ def sum_by_state():
         FROM sdud_cleaned
         GROUP BY generic_name;
     """
-    engine.execute(query)
+    cur.execute(query)
     rows = cur.fetchmany(size=10)
     print(rows)
 
@@ -98,7 +98,8 @@ if __name__ == "__main__":
         host = 'psql-test.csjcz7lmua3t.us-east-1.rds.amazonaws.com'
         port = '5432'
         dbname = 'postgres'
-        engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
+        #engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
+        conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
     else:
         print("Connect to AWS Redshift")
         user = os.getenv('REDSHIFT_USER', 'default')
@@ -107,8 +108,8 @@ if __name__ == "__main__":
         port = '5439'
         dbname = 'rxtest'
         engine = sa.create_engine('redshift+psycopg2://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
-    con = engine.connect()
-    cur = con.cursor()
+    #con = engine.connect()
+    cur = conn.cursor()
     print("Connected")
     s3_path = 's3n://rxminer/'
     start0 = time.time()
@@ -125,4 +126,5 @@ if __name__ == "__main__":
     end = time.time()
     #print(end - start)
     print(end - start0)
-    con.close()
+    conn.close()
+    cur.close()
