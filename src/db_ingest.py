@@ -20,6 +20,8 @@ def read_medicare(year, mode):
     for chunk in chunks:
         chunk["year"] = year
         df_to_postgres(chunk, psql_table, mode)
+        print('Medicare data: reading in progress...')
+    print('Finish Reading Medicare data and save in table '+psql_table)
 
 def read_medicaid(year, mode):
     type_dir = 'sdud/medicaid_sdud_'
@@ -32,7 +34,7 @@ def read_medicaid(year, mode):
         'nonmedicaid_reimbursed', 'ndc'
         ]
     d_type = {'ndc': str}
-    df = pd.read_csv(
+    chunks = pd.read_csv(
         s3_path+type_dir+str(year)+'.csv',
         usecols = cols_to_keep,
         names = column_names,
@@ -42,6 +44,8 @@ def read_medicaid(year, mode):
     for chunk in chunks:
         chunk = chunk.dropna(subset=['tot_reimbursed'])
         df_to_postgres(chunk, psql_table, mode)
+        print('Medicaid data: reading in progress...')
+    print('Finish Reading Medicaid data and save in table '+psql_table)
 
 def clean_npi(df):
     """
@@ -76,6 +80,8 @@ def read_npi(file_name, mode):
     for chunk in chunks:
         clean_npi(chunk)
         df_to_postgres(chunk, 'npidata', mode)
+        print('NPI data: reading in progress...')
+    print('Finish Reading NPI and save in table npidata')
 
 def convert_ndc(ndc):
     temp = ndc.split('-')
@@ -98,6 +104,7 @@ def read_drugndc(mode):
     # Standardlize dashed NDC to CMS 11 digits NDC
     df.package_ndc = df.package_ndc.apply(convert_ndc)
     df_to_postgres(df, 'ndcdata', mode)
+    print('Finish Reading NDC and save in table ndcdata')
 
 def merge_table():
     query = """
@@ -127,15 +134,15 @@ if __name__ == "__main__":
     # engine = sa.create_engine('postgresql://dbuser:password@localhost/rxdata')
     engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
     con = engine.connect()
-    # conn = psycopg2.connect(dbname='rxdata', user='dbuser', host='localhost', password='password')
+    # conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
     # cur = conn.cursor()
     chunk_size = 100000
     s3_path = 's3n://rxminer/'
     #s3_path = '../test/rxdata/'
-    read_drugndc('replace')
-    print('Finish Reading NDC')
-    # read_npi('npidata_pfile_20050523-20190113', 'append')
-    #read_medicare(2016, 'append')
-    #read_medicaid(2016, 'append')
+    print("PostgreSQL connected")
+    # read_drugndc('replace')
+    read_medicaid(2016, 'append')
+    read_npi('npidata_pfile_20050523-20190113', 'append')
+    read_medicare(2016, 'append')
     # cur.close()
     con.close()

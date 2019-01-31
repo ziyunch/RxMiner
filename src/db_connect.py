@@ -13,24 +13,19 @@ class db_connect:
         pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
         host = os.getenv('POSTGRESQL_HOST_IP', 'default')
         port = os.getenv('POSTGRESQL_PORT', 'default')
-        db = os.getenv('POSTGRESQL_DATABASE', 'default')
+        dbname = os.getenv('POSTGRESQL_DATABASE', 'default')
     else:
         # Connect to localhost
-        psql_user = 'dbuser'
-        psql_pswd = 'password'
-        psql_host = '127.0.0.1'
-        psql_port = '5432'
-        psql_db = 'rxdata'
-    self.conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
-    self.cur = self.conn.cursor()
+        user = os.getenv('REDSHIFT_USER', 'default')
+        pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
+        host = os.getenv('REDSHIFT_HOST_IP', 'default')
+        port = os.getenv('REDSHIFT_PORT', 'default')
+        dbname = os.getenv('REDSHIFT_DATABASE', 'default')
     self.engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
     self.con = engine.connect()
 
 def get_connection(self):
-    return self.conn, self.cur
-
-def get_
+    return self.engine, self.con
 
 def close_connection(self):
-    self.conn.close()
-    self.cur.close()
+    self.con.close()
