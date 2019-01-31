@@ -108,23 +108,6 @@ def read_drugndc(mode):
     df_to_postgres(df, 'ndcdata', mode)
     print(datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')+' Finish Reading NDC and save in table ndcdata')
 
-def merge_table():
-    query = """
-        SELECT
-            pupd.npi,
-            npidata.practice_state
-        FROM
-            pupd
-        LEFT JOIN npidata ON npidata.npi = pupd.npi
-    """
-    cur.execute(query)
-    print("The number of parts: ", cur.rowcount)
-    rows = cur.fetchmany(size=10)
-    print(rows)
-
-def delete_table():
-    cur.execute("DELETE TABLE pupd, npidata")
-
 if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None

@@ -91,15 +91,15 @@ def read_drugndc(mode):
 
 def merge_table():
     query = """
-SELECT
-    sdudtest.ndc,
-    sdudtest.tot_reimbursed,
-    ndctest.generic_name
-INTO
-    sdud_cleaned
-FROM
-    sdudtest
-LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest.ndc;
+        SELECT
+            sdudtest.ndc,
+            sdudtest.tot_reimbursed,
+            ndctest.generic_name
+        INTO
+            sdud_cleaned
+        FROM
+            sdudtest
+        LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest.ndc;
     """
     cur.execute(query)
     rows = cur.fetchmany(size=10)
