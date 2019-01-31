@@ -88,8 +88,8 @@ def sum_by_state():
     print(rows)
 
 if __name__ == "__main__":
-    pr = cProfile.Profile()
-    pr.enable()
+#    pr = cProfile.Profile()
+#    pr.enable()
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
     test_limit = int(sys.argv[1])
