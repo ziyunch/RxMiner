@@ -7,13 +7,41 @@ import pandas as pd
 import json
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
+import StringIO
+#import cProfile, pstats, StringIO
 
-def df_to_postgres(df, df_name, mode):
+def cleanColumns(columns):
+    cols = []
+    for col in columns:
+        col = col.replace(' ', '_')
+        cols.append(col)
+    return cols
+
+def pd_to_postgres(df, table_name, mode):
     """
     Save DataFrame to PostgreSQL by providing sqlalchemy engine
     """
     # Writing Dataframe to PostgreSQL and replacing table if it already exists
     df.to_sql(name=df_name, con=engine, if_exists = mode, index=False)
+
+def df_to_postgres(df, table_name, mode):
+    data = StringIO.StringIO()
+    df.columns = cleanColumns(df.columns)
+    df.to_csv(data, header=False, index=False)
+    data.seek(0)
+    raw = engine.raw_connection()
+    curs = raw.cursor()
+    curs.execute("DROP TABLE " + table_name)
+    empty_table = pd.io.sql.get_schema(df, table_name, con = engine)
+    empty_table = empty_table.replace('"', '')
+    curs.execute(empty_table)
+    query = """
+        COPY %s FROM STDIN WITH
+            CSV
+            HEADER
+    """
+    curs.copy_expert(sql=query % table_name, data)
+    curs.connection.commit()
 
 def read_medicaid(year, mode):
     type_dir = 'sdud/medicaid_sdud_'
@@ -87,6 +115,8 @@ def sum_by_state():
     print(rows)
 
 if __name__ == "__main__":
+#    pr = cProfile.Profile()
+#    pr.enable()
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
     test_limit = int(sys.argv[1])
@@ -127,5 +157,11 @@ if __name__ == "__main__":
     print(end - start)
     print(end - start0)
     con.close()
+#    pr.disable()
+#    s = StringIO.StringIO()
+#    sortby = 'cumulative'
+#    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+#    ps.print_stats()
+#    print s.getvalue()
     #conn.close()
     #cur.close()

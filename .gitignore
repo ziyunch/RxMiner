@@ -7,3 +7,6 @@
 /legacy/
 /test/
 /resources/
+
+*.profile
+*.out
