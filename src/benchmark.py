@@ -8,8 +8,6 @@ import json
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
 
-test = True
-
 def df_to_postgres(df, df_name, mode):
     """
     Save DataFrame to PostgreSQL by providing sqlalchemy engine
@@ -80,8 +78,8 @@ if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
     test_limit = int(sys.argv[1])
-    psql = int(sys.argv[2])
-    if psql:
+    psql = sys.argv[2]
+    if psql == "psql":
         user = os.getenv('POSTGRESQL_USER', 'default')
         pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
         host = 'psql-test.csjcz7lmua3t.us-east-1.rds.amazonaws.com'
