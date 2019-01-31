@@ -7,14 +7,30 @@ import pandas as pd
 import json
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
+import StringIO
 #import cProfile, pstats, StringIO
 
-def df_to_postgres(df, df_name, mode):
+def pd_to_postgres(df, table_name, mode):
     """
     Save DataFrame to PostgreSQL by providing sqlalchemy engine
     """
     # Writing Dataframe to PostgreSQL and replacing table if it already exists
     df.to_sql(name=df_name, con=engine, if_exists = mode, index=False)
+
+def df_to_postgres(df, table_name, mode):
+    data = StringIO.StringIO()
+    df.columns = cleanColumns(df.columns)
+    df.to_csv(data, header=False, index=False)
+    data.seek(0)
+    raw = con.raw_connection()
+    curs = raw.cursor()
+    curs.execute("DROP TABLE " + table_name)
+    empty_table = pd.io.sql.get_schema(df, table_name, con = con)
+    empty_table = empty_table.replace('"', '')
+    curs.execute(empty_table)
+    curs.copy_from(data, table_name, sep = ',')
+    curs.connection.commit()
+
 
 def read_medicaid(year, mode):
     type_dir = 'sdud/medicaid_sdud_'
