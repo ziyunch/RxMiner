@@ -80,23 +80,26 @@ if __name__ == "__main__":
     test_limit = int(sys.argv[1])
     psql = sys.argv[2]
     if psql == "psql":
+        print("Connect to PostgreSQL on AWS RDS")
         user = os.getenv('POSTGRESQL_USER', 'default')
         pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
         host = 'psql-test.csjcz7lmua3t.us-east-1.rds.amazonaws.com'
         port = '5432'
         dbname = 'postgres'
         engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
+        conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
     else:
+        print("Connect to AWS Redshift")
         user = os.getenv('REDSHIFT_USER', 'default')
         pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
         host = 'redshift-test.cgcoq5ionbrp.us-east-1.redshift.amazonaws.com:5439'
         port = '5439'
         dbname = 'rxtest'
         engine = sa.create_engine('redshift+psycopg2://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
+        conn = psycopg2.connect(dbname=dbname, user=user, host=host, port=port, password=pswd)
     con = engine.connect()
-    # conn = psycopg2.connect(dbname='rxtest', user='dbuser', host='localhost', password='password')
-    # cur = conn.cursor()
-    chunk_size = 100000
+    cur = conn.cursor()
+    print("Connected")
     s3_path = 's3n://rxminer/'
     #s3_path = '../test/rxdata/'
     start0 = time.time()
