@@ -106,7 +106,7 @@ if __name__ == "__main__":
     end = time.time()
     print(end - start0)
     start = time.time()
-    read_medicaid(2016, 'append')
+    read_medicaid(2016, 'replace')
     end = time.time()
     print(end - start)
     start = time.time()
