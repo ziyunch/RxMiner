@@ -36,9 +36,7 @@ if __name__ == "__main__":
     host = os.getenv('POSTGRESQL_HOST_IP', 'default')
     port = os.getenv('POSTGRESQL_PORT', 'default')
     dbname = 'postgres'
-    engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
-    con = engine.connect()
-    conn = engine.raw_connection()
+    conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
     cur = conn.cursor()
     print("PostgreSQL connected")
     merge_npi()
