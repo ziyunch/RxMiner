@@ -34,7 +34,7 @@ def read_medicaid(year, mode):
         'nonmedicaid_reimbursed', 'ndc'
         ]
     d_type = {'ndc': str}
-    df = pd.read_csv(
+    chunks = pd.read_csv(
         s3_path+type_dir+str(year)+'.csv',
         usecols = cols_to_keep,
         names = column_names,
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     chunk_size = 100000
     s3_path = 's3n://rxminer/'
     #s3_path = '../test/rxdata/'
-    read_drugndc('replace')
+    # read_drugndc('replace')
     read_medicaid(2016, 'append')
     read_npi('npidata_pfile_20050523-20190113', 'append')
     read_medicare(2016, 'append')
