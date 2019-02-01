@@ -5,7 +5,7 @@ def sum_by_state():
     sql_query = """
         SELECT SUM(total_claim_count), practice_state
         FROM pupd_cleaned
-        GROUP BY pupd_cleaned;
+        GROUP BY practice_state;
     """
     cur.execute(sql_query)
     conn.commit()

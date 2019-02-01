@@ -8,7 +8,6 @@ import json
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
 import StringIO
-#import cProfile, pstats, StringIO
 
 def cleanColumns(columns):
     cols = []
@@ -19,30 +18,34 @@ def cleanColumns(columns):
 
 def pd_to_postgres(df, table_name, mode):
     """
-    Save DataFrame to PostgreSQL by providing sqlalchemy engine
+    Save DataFrame to PostgreSQL by to_sql() function.
     """
     # Writing Dataframe to PostgreSQL and replacing table if it already exists
     df.to_sql(name=df_name, con=engine, if_exists = mode, index=False)
 
 def df_to_postgres(df, table_name, mode):
+    """
+    Save DataFrame to .csv, read csv as sql table in memory and copy the table
+     directly in batch to PostgreSQL.
+    """
     data = StringIO.StringIO()
     df.columns = cleanColumns(df.columns)
     df.to_csv(data, header=False, index=False)
     data.seek(0)
-    raw = engine.raw_connection()
-    curs = raw.cursor()
+    #raw = engine.raw_connection()
+    #curs = raw.cursor()
     if mode == 'replace':
-        curs.execute("DROP TABLE " + table_name)
-        empty_table = pd.io.sql.get_schema(df, table_name, con = engine)
-        empty_table = empty_table.replace('"', '')
-        curs.execute(empty_table)
+        cur.execute("DROP TABLE " + table_name)
+    empty_table = pd.io.sql.get_schema(df, table_name, con = engine)
+    empty_table = empty_table.replace('"', '')
+    cur.execute(empty_table)
     sql_query = """
         COPY %s FROM STDIN WITH
             CSV
             HEADER
         """
-    curs.copy_expert(sql=sql_query % table_name, file=data)
-    curs.connection.commit()
+    cur.copy_expert(sql=sql_query % table_name, file=data)
+    cur.connection.commit()
 
 def read_medicaid(year, mode):
     type_dir = 'sdud/medicaid_sdud_'
@@ -55,15 +58,16 @@ def read_medicaid(year, mode):
         'nonmedicaid_reimbursed', 'ndc'
         ]
     d_type = {'ndc': str}
-    df = pd.read_csv(
+    chunks = pd.read_csv(
         s3_path+type_dir+str(year)+'.csv',
         usecols = cols_to_keep,
         names = column_names,
         dtype = d_type,
         skiprows = 1,
-        nrows = test_limit)
-    df = df.dropna(subset=['tot_reimbursed'])
-    df_to_postgres(df, psql_table, mode)
+        chunksize = chunk_size)
+    for chunk in chunks:
+        chunk.dropna(subset=['tot_reimbursed'], inplace=True)
+        df_to_postgres(chunk, psql_table, mode)
     print('Finish Reading Medicaid data and save in table '+psql_table)
 
 def convert_ndc(ndc):
@@ -91,6 +95,7 @@ def read_drugndc(mode):
 
 def merge_table():
     query = """
+        DROP TABLE sdud_cleaned;
         SELECT
             sdudtest.ndc,
             sdudtest.tot_reimbursed,
@@ -100,10 +105,13 @@ def merge_table():
         FROM
             sdudtest
         LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest.ndc;
+        SELECT * FROM sdud_cleaned LIMIT 10;
     """
-    cur.execute(query)
-    rows = cur.fetchmany(size=10)
-    print(rows)
+    if (psyc == "psycopg2" or sraw == "raw") :
+        cur.execute(query)
+        conn.commit()
+    else:
+        conn.execute(query)
 
 def sum_by_state():
     query = """
@@ -111,17 +119,22 @@ def sum_by_state():
         FROM sdud_cleaned
         GROUP BY generic_name;
     """
-    cur.execute(query)
+    if (psyc == "sqlalchemy" and sraw == "no"):
+        conn.execute(query)
+        conn = conn.connection
+    else:
+        cur.execute(query)
+        conn.commit()
     rows = cur.fetchmany(size=10)
     print(rows)
 
 if __name__ == "__main__":
-#    pr = cProfile.Profile()
-#    pr.enable()
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
-    test_limit = int(sys.argv[1])
+    chunk_size = int(sys.argv[1])
     psql = sys.argv[2]
+    psyc = sys.argv[3]
+    sraw = sys.argv[4]
     if psql == "psql":
         print("Connect to PostgreSQL on AWS RDS")
         user = os.getenv('POSTGRESQL_USER', 'default')
@@ -129,8 +142,7 @@ if __name__ == "__main__":
         host = 'psql-test.csjcz7lmua3t.us-east-1.rds.amazonaws.com'
         port = '5432'
         dbname = 'postgres'
-        engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
-        #conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
+        surl = 'postgresql://'
     else:
         print("Connect to AWS Redshift")
         user = os.getenv('REDSHIFT_USER', 'default')
@@ -138,31 +150,34 @@ if __name__ == "__main__":
         host = 'redshift-test.cgcoq5ionbrp.us-east-1.redshift.amazonaws.com'
         port = '5439'
         dbname = 'rxtest'
-        engine = sa.create_engine('redshift+psycopg2://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
-    con = engine.connect()
-    #cur = conn.cursor()
-    print("Connected")
+        surl = 'redshift+postgresql://'
+    if psyc == "psycopg2":
+        print("Using Psycopg2")
+        conn = psycopg2.connect(dbname=dbname, user=user, host=host, port=port, password=pswd)
+        cur = conn.cursor()
+    else:
+        engine = sa.create_engine(surl+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
+        if sraw == "raw":
+            conn = engine.raw_connection()
+            cur = raw.cursor()
+        else:
+            conn = engine.connect()
+    print("Connected"")
     s3_path = 's3n://rxminer/'
     start0 = time.time()
-    read_drugndc('replace')
-    end = time.time()
-    print(end - start0)
     start = time.time()
-    read_medicaid(2016, 'replace')
+    if (psyc == "sqlalchemy" and sraw == "no"): read_drugndc('replace')
     end = time.time()
     print(end - start)
     start = time.time()
-    #merge_table()
-    #sum_by_state()
+    if (psyc == "sqlalchemy" and sraw == "no") : read_medicaid(2016, 'append')
+    end = time.time()
+    print(end - start)
+    start = time.time()
+    merge_table()
+    sum_by_state()
     end = time.time()
     print(end - start)
     print(end - start0)
-    con.close()
-#    pr.disable()
-#    s = StringIO.StringIO()
-#    sortby = 'cumulative'
-#    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-#    ps.print_stats()
-#    print s.getvalue()
-    #conn.close()
-    #cur.close()
+    cur.close()
+    conn.close()
