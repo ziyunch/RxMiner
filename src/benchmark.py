@@ -164,7 +164,7 @@ if __name__ == "__main__":
             cur = raw.cursor()
         else:
             conn = engine.connect()
-    print(datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')+"Connected"")
+    print(datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')+"Connected")
     s3_path = 's3n://rxminer/'
     start0 = time.time()
     start = time.time()
