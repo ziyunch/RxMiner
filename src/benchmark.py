@@ -69,8 +69,8 @@ def read_medicaid(year, mode):
     for chunk in chunks:
         chunk.dropna(subset=['tot_reimbursed'], inplace=True)
         df_to_postgres(chunk, psql_table, mode)
-        print('Medicaid data: reading in progress...')
-    print(datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')+'Finish Reading Medicaid data and save in table '+psql_table)
+        print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+' Medicaid data: reading in progress...')
+    print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading Medicaid data and save in table '+psql_table)
 
 def convert_ndc(ndc):
     temp = ndc.split('-')
@@ -93,7 +93,7 @@ def read_drugndc(mode):
     # Standardlize dashed NDC to CMS 11 digits NDC
     df.package_ndc = df.package_ndc.apply(convert_ndc)
     df_to_postgres(df, 'ndctest', mode)
-    print(datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')+'Finish Reading NDC and save in table ndcdata')
+    print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading NDC and save in table ndcdata')
 
 def merge_table():
     query = """
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     psyc = sys.argv[3]
     sraw = sys.argv[4]
     if psql == "psql":
-        print(datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')+'Connect to PostgreSQL on AWS RDS')
+        print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connect to PostgreSQL on AWS RDS')
         user = os.getenv('POSTGRESQL_USER', 'default')
         pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
         host = 'psql-test.csjcz7lmua3t.us-east-1.rds.amazonaws.com'
@@ -146,7 +146,7 @@ if __name__ == "__main__":
         dbname = 'postgres'
         surl = 'postgresql://'
     else:
-        print(datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')+'Connect to AWS Redshift')
+        print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connect to AWS Redshift')
         user = os.getenv('REDSHIFT_USER', 'default')
         pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
         host = 'redshift-test.cgcoq5ionbrp.us-east-1.redshift.amazonaws.com'
@@ -164,7 +164,7 @@ if __name__ == "__main__":
             cur = raw.cursor()
         else:
             conn = engine.connect()
-    print(datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')+'Connected')
+    print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+'Connected')
     s3_path = 's3n://rxminer/'
     start0 = time.time()
     start = time.time()
