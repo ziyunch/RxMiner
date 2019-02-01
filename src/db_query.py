@@ -25,6 +25,7 @@ def merge_npi():
         LEFT JOIN npidata ON (npidata.npi = pupd.npi AND npidata.last_name = pupd.nppes_provider_last_org_name);
     """
     cur.execute(sql_query)
+    conn.commit()
     print("The number of parts: ", cur.rowcount)
     rows = cur.fetchmany(size=10)
     print(rows)
