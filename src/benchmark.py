@@ -48,6 +48,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
                 CSV
                 HEADER;
         """
+        cur.copy_expert(sql=sql_query, file=data)
     else:
         with s3.open('rxminer/temp.csv', 'wb') as f:
             df.to_csv(f, index=False, header=False)
@@ -58,7 +59,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
             CSV
             IGNOREHEADER 1;
         """
-    cur.copy_expert(sql=sql_query, file=data)
+        cur.copy_expert(sql=sql_query)
     cur.connection.commit()
     # Copy or append table temp to target table
     if (mode == 'replace' or new_table == 0):
