@@ -10,7 +10,7 @@ def cleanColumns(columns):
         cols.append(col)
     return cols
 
-def df_to_sql(df, table_name, mode):
+def df_to_sql(df, table_name, mode, new_table):
     """
     Save DataFrame to .csv, read csv as sql table in memory and copy the table
      directly in batch to PostgreSQL or Redshift.
