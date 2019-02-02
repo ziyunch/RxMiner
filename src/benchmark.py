@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import datetime
+import pytz
 import boto
 import boto3
 import pandas as pd
@@ -9,6 +10,7 @@ import json
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
 import StringIO
+import db_to_sql
 
 def cleanColumns(columns):
     cols = []
@@ -25,10 +27,6 @@ def pd_to_postgres(df, table_name, mode):
     df.to_sql(name=df_name, con=engine, if_exists = mode, index=False)
 
 def df_to_postgres(df, table_name, mode):
-    """
-    Save DataFrame to .csv, read csv as sql table in memory and copy the table
-     directly in batch to PostgreSQL.
-    """
     data = StringIO.StringIO()
     df.columns = cleanColumns(df.columns)
     df.to_csv(data, header=False, index=False)
@@ -43,14 +41,14 @@ def df_to_postgres(df, table_name, mode):
     sql_query = """
         COPY %s FROM STDIN WITH
             CSV
-            HEADER
+            HEADER;
         """
     cur.copy_expert(sql=sql_query % table_name, file=data)
     cur.connection.commit()
 
 def read_medicaid(year, mode):
     type_dir = 'sdud/medicaid_sdud_'
-    psql_table = 'sdudtest'
+    table_name = 'sdudtest'
     cols_to_keep = [1,5,7,9,10,11,12,13,19]
     column_names = [
         'state', 'year', 'drug_name',
@@ -66,11 +64,13 @@ def read_medicaid(year, mode):
         dtype = d_type,
         skiprows = 1,
         chunksize = chunk_size)
+    new_table = 0
     for chunk in chunks:
+        new_table += 1
         chunk.dropna(subset=['tot_reimbursed'], inplace=True)
-        df_to_postgres(chunk, psql_table, mode)
-        print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+' Medicaid data: reading in progress...')
-    print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading Medicaid data and save in table '+psql_table)
+        df_to_sql(df, table_name, mode)
+        print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Medicaid data: reading in progress...')
+    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading Medicaid data and save in table '+psql_table)
 
 def convert_ndc(ndc):
     temp = ndc.split('-')
@@ -92,8 +92,8 @@ def read_drugndc(mode):
     df = df[['package_ndc', 'generic_name', 'brand_name', 'labeler_name']]
     # Standardlize dashed NDC to CMS 11 digits NDC
     df.package_ndc = df.package_ndc.apply(convert_ndc)
-    df_to_postgres(df, 'ndctest', mode)
-    print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading NDC and save in table ndcdata')
+    df_to_sql(df, 'ndctest', mode)
+    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading NDC and save in table ndcdata')
 
 def merge_table():
     query = """
@@ -133,12 +133,13 @@ def sum_by_state():
 if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
+    eastern = pytz.timezone('US/Eastern')
     chunk_size = int(sys.argv[1])
     psql = sys.argv[2]
     psyc = sys.argv[3]
     sraw = sys.argv[4]
     if psql == "psql":
-        print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connect to PostgreSQL on AWS RDS')
+        print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connect to PostgreSQL on AWS RDS')
         user = os.getenv('POSTGRESQL_USER', 'default')
         pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
         host = 'psql-test.csjcz7lmua3t.us-east-1.rds.amazonaws.com'
@@ -146,7 +147,7 @@ if __name__ == "__main__":
         dbname = 'postgres'
         surl = 'postgresql://'
     else:
-        print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connect to AWS Redshift')
+        print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connect to AWS Redshift')
         user = os.getenv('REDSHIFT_USER', 'default')
         pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
         host = 'redshift-test.cgcoq5ionbrp.us-east-1.redshift.amazonaws.com'
@@ -164,7 +165,7 @@ if __name__ == "__main__":
             con = engine.connect()
             conn = con.connection
     cur = conn.cursor()
-    print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+'Connected')
+    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+'Connected')
     s3_path = 's3n://rxminer/'
     start0 = time.time()
     start = time.time()
