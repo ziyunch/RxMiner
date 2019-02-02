@@ -61,7 +61,7 @@ def read_medicaid(year, mode):
     for chunk in chunks:
         chunk.dropna(subset=['tot_reimbursed'], inplace=True)
         if pd2db == "yes":
-            pd_to_postgres(df, table_name, mode)
+            pd_to_postgres(chunk, table_name, mode)
         else:
             glob_func.df_to_sql(chunk, table_name, mode, new_table, psql, cur, engine)
         new_table += 1
