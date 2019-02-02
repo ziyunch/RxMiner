@@ -60,7 +60,10 @@ def read_medicaid(year, mode):
     new_table = 0
     for chunk in chunks:
         chunk.dropna(subset=['tot_reimbursed'], inplace=True)
-        glob_func.df_to_sql(chunk, table_name, mode, new_table, psql, cur, engine)
+        if pd2db == "yes":
+            pd_to_postgres(df, table_name, mode)
+        else:
+            glob_func.df_to_sql(chunk, table_name, mode, new_table, psql, cur, engine)
         new_table += 1
         print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Medicaid data: reading in progress...')
     print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading Medicaid data and save in table '+table_name)
@@ -73,6 +76,7 @@ def convert_ndc(ndc):
 
 def read_drugndc(mode):
     new_table = 0
+    table_name = 'ndctest'
     s3 = boto3.resource('s3')
     content_object = s3.Object('rxminer', 'openfda/drug-ndc-0001-of-0001.json')
     file_content = content_object.get()['Body'].read().decode('utf-8')
@@ -86,7 +90,10 @@ def read_drugndc(mode):
     df = df[['package_ndc', 'generic_name', 'brand_name', 'labeler_name']]
     # Standardlize dashed NDC to CMS 11 digits NDC
     df.package_ndc = df.package_ndc.apply(convert_ndc)
-    glob_func.df_to_sql(df, 'ndctest', mode, new_table, psql, cur, engine)
+    if pd2db == "yes":
+        pd_to_postgres(df, table_name, mode)
+    else:
+        glob_func.df_to_sql(df, table_name, mode, new_table, psql, cur, engine)
     print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading NDC and save in table ndcdata')
 
 def merge_table():
@@ -113,8 +120,6 @@ def sum_by_state():
     """
     cur.execute(query)
     conn.commit()
-    rows = cur.fetchmany(size=10)
-    print(rows)
 
 if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
@@ -125,6 +130,7 @@ if __name__ == "__main__":
     psql = sys.argv[2]
     psyc = sys.argv[3]
     sraw = sys.argv[4]
+    pd2db = sys.argv[5]
     if psql == "psql":
         print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connect to PostgreSQL on AWS RDS')
         user = os.getenv('POSTGRESQL_USER', 'default')
