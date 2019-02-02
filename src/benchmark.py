@@ -59,7 +59,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
             CSV
             IGNOREHEADER 1;
         """
-        cur.execute(sql=sql_query)
+        cur.execute(sql_query)
     cur.connection.commit()
     # Copy or append table temp to target table
     if (mode == 'replace' or new_table == 0):
