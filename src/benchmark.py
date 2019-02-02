@@ -127,6 +127,7 @@ if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
     eastern = pytz.timezone('US/Eastern')
+    new_table = 0
     chunk_size = int(sys.argv[1])
     psql = sys.argv[2]
     psyc = sys.argv[3]
