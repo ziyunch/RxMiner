@@ -49,11 +49,11 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
                 HEADER;
         """
     else:
-        with s3.open('temp_file', 'w') as f:
+        with s3.open('rxminer/temp.csv', 'w') as f:
             df.to_csv(f, index=False, header=False)
         sql_query = """
             COPY temp
-            FROM 's3://rxminer/temp/temp_file.csv'
+            FROM 's3://rxminer/temp/temp.csv'
             IAM_ROLE 'arn:aws:iam::809946175142:role/AWSServiceRoleForRedshift'
             CSV
             IGNOREHEADER 1;
