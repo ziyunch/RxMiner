@@ -63,7 +63,7 @@ def read_medicaid(year, mode):
         glob_func.df_to_sql(chunk, table_name, mode, new_table, psql, cur, engine)
         new_table += 1
         print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Medicaid data: reading in progress...')
-    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading Medicaid data and save in table '+psql_table)
+    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading Medicaid data and save in table '+table_name)
 
 def convert_ndc(ndc):
     temp = ndc.split('-')
@@ -158,7 +158,7 @@ if __name__ == "__main__":
             con = engine.connect()
             conn = con.connection
     cur = conn.cursor()
-    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+'Connected')
+    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connected')
     s3_path = 's3n://rxminer/'
     start0 = time.time()
     start = time.time()
