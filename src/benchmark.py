@@ -168,7 +168,7 @@ if __name__ == "__main__":
     s3_path = 's3n://rxminer/'
     start0 = time.time()
     start = time.time()
-    if (psyc == "sqlalchemy" and sraw == "no"): read_drugndc('replace')
+    if (psyc == "sqlalchemy" and sraw == "no"): read_drugndc('append')
     end = time.time()
     print(end - start)
     start = time.time()
