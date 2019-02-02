@@ -41,7 +41,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
                 CSV
                 HEADER;
             INSERT INTO %s SELECT * FROM temp;
-            DROP TABLE;
+            DROP TABLE temp;
         """
     else:
         sql_query = """
@@ -49,7 +49,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
                 CSV
                 HEADER;
             ALTER TABLE %s APPEND FROM temp;
-            DROP TABLE;
+            DROP TABLE temp;
         """
     empty_table = pd.io.sql.get_schema(df, table_name, con = engine)
     empty_table = empty_table.replace('"', '')
