@@ -49,7 +49,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
                 HEADER;
         """
     else:
-        with s3.open('rxminer/temp.csv', 'w') as f:
+        with s3.open('rxminer/temp.csv', 'wb') as f:
             df.to_csv(f, index=False, header=False)
         sql_query = """
             COPY temp
