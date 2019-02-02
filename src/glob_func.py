@@ -36,6 +36,8 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, conn, engine):
             CSV
             HEADER;
         """
+    cur.copy_expert(sql=sql_query, file=data)
+    conn.commit()
     if (mode == 'replace' or new_table == 0):
         sql_query2 = """
             ALTER TABLE temp
@@ -44,17 +46,11 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, conn, engine):
     elif psql == 'psql':
         sql_query2 = """
             INSERT INTO %s SELECT * FROM temp;
+            DROP TABLE temp;
         """
     else:
         sql_query2 = """
             ALTER TABLE %s APPEND FROM temp;
         """
-    sql_query3 = """
-            DROP TABLE temp;
-        """
-    cur.copy_expert(sql=sql_query, file=data)
-    cur.connection.commit()
     cur.execute(sql_query2 % table_name)
-    cur.connection.commit()
-    cur.execute(sql_query3)
-    cur.connection.commit()
+    conn.commit()
