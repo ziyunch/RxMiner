@@ -68,7 +68,7 @@ def read_medicaid(year, mode):
     for chunk in chunks:
         new_table += 1
         chunk.dropna(subset=['tot_reimbursed'], inplace=True)
-        glob_func.df_to_sql(df, table_name, mode)
+        glob_func.df_to_sql(chunk, table_name, mode)
         print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Medicaid data: reading in progress...')
     print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading Medicaid data and save in table '+psql_table)
 
