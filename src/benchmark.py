@@ -17,7 +17,7 @@ def pd_to_postgres(df, table_name, mode):
     Save DataFrame to PostgreSQL by to_sql() function.
     """
     # Writing Dataframe to PostgreSQL and replacing table if it already exists
-    df.to_sql(name=df_name, con=engine, if_exists = mode, index=False)
+    df.to_sql(name=table_name, con=engine, if_exists = mode, index=False)
 
 def df_to_postgres(df, table_name, mode):
     data = StringIO.StringIO()
