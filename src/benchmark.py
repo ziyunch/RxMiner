@@ -60,7 +60,7 @@ def read_medicaid(year, mode):
     new_table = 0
     for chunk in chunks:
         chunk.dropna(subset=['tot_reimbursed'], inplace=True)
-        glob_func.df_to_sql(chunk, table_name, mode, new_table, psql, cur, engine)
+        glob_func.df_to_sql(chunk, table_name, mode, new_table, psql, cur, conn, engine)
         new_table += 1
         print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Medicaid data: reading in progress...')
     print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading Medicaid data and save in table '+psql_table)
@@ -85,7 +85,7 @@ def read_drugndc(mode):
     df = df[['package_ndc', 'generic_name', 'brand_name', 'labeler_name']]
     # Standardlize dashed NDC to CMS 11 digits NDC
     df.package_ndc = df.package_ndc.apply(convert_ndc)
-    glob_func.df_to_sql(df, 'ndctest', mode, new_table, psql, cur, engine)
+    glob_func.df_to_sql(df, 'ndctest', mode, new_table, psql, cur, conn, engine)
     print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading NDC and save in table ndcdata')
 
 def merge_table():
