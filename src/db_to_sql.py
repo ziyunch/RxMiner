@@ -21,13 +21,13 @@ def df_to_sql(df, table_name, mode):
                 CSV
                 HEADER;
             """
-    else if new_table == 0:
+    elif new_table == 0:
         sql_query = """
             COPY %s FROM STDIN WITH
                 CSV
                 HEADER;
             """
-    else if psql == 'psql':
+    elif psql == 'psql':
         sql_query = """
             COPY temp FROM STDIN WITH
                 CSV
