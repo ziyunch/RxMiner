@@ -107,7 +107,7 @@ def merge_table():
         cur.execute(query)
         conn.commit()
     else:
-        con.execute(query)
+        engine.execute(query)
 
 def sum_by_state():
     query = """
@@ -116,8 +116,7 @@ def sum_by_state():
         GROUP BY generic_name;
     """
     if (psyc == "sqlalchemy" and sraw == "no"):
-        con.execute(query)
-        conn = con.connection
+        engine.execute(query)
     else:
         cur.execute(query)
         conn.commit()
