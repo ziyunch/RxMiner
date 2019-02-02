@@ -91,7 +91,6 @@ def read_drugndc(mode):
 
 def merge_table():
     query = """
-        DROP TABLE sdud_cleaned;
         SELECT
             sdudtest.ndc,
             sdudtest.tot_reimbursed,
