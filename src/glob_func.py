@@ -45,7 +45,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
     sql_query3 = """
             DROP TABLE temp;
         """
-    empty_table = pd.io.sql.get_schema(df, temp, con = engine)
+    empty_table = pd.io.sql.get_schema(df, 'temp', con = engine)
     empty_table = empty_table.replace('"', '')
     cur.execute(empty_table)
     cur.copy_expert(sql=sql_query, file=data)
