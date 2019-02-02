@@ -17,7 +17,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
      directly in batch to PostgreSQL or Redshift.
     """
     # Prepare schema for table
-    df[:0].to_sql('temp', engine, if_exists = "replace")
+    df[:0].to_sql('temp', engine, if_exists = "replace", index=False)
     # Prepare data
     data = StringIO.StringIO()
     df.columns = cleanColumns(df.columns)
