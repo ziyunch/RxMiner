@@ -113,7 +113,7 @@ def merge_table():
         cur.execute(query)
         conn.commit()
     else:
-        conn.execute(query)
+        con.execute(query)
 
 def sum_by_state():
     query = """
@@ -122,8 +122,8 @@ def sum_by_state():
         GROUP BY generic_name;
     """
     if (psyc == "sqlalchemy" and sraw == "no"):
-        conn.execute(query)
-        conn = conn.connection
+        con.execute(query)
+        conn = con.connection
     else:
         cur.execute(query)
         conn.commit()
@@ -156,14 +156,14 @@ if __name__ == "__main__":
     if psyc == "psycopg2":
         print("Using Psycopg2")
         conn = psycopg2.connect(dbname=dbname, user=user, host=host, port=port, password=pswd)
-        cur = conn.cursor()
     else:
         engine = sa.create_engine(surl+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
         if sraw == "raw":
             conn = engine.raw_connection()
-            cur = raw.cursor()
         else:
-            conn = engine.connect()
+            con = engine.connect()
+            conn = con.connection
+    cur = conn.cursor()
     print(datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")+'Connected')
     s3_path = 's3n://rxminer/'
     start0 = time.time()
@@ -183,3 +183,4 @@ if __name__ == "__main__":
     print(end - start0)
     cur.close()
     conn.close()
+    if (psyc == "sqlalchemy" and sraw == "no") : con.close()
