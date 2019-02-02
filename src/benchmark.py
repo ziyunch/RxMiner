@@ -102,7 +102,7 @@ def read_medicaid(year, mode):
         if pd2db == "yes":
             pd_to_postgres(chunk, table_name, mode)
         else:
-            glob_func.df_to_sql(chunk, table_name, mode, new_table, psql, cur, engine)
+            df_to_sql(chunk, table_name, mode, new_table, psql, cur, engine)
         new_table += 1
         print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Medicaid data: reading in progress...')
     print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading Medicaid data and save in table '+table_name)
@@ -132,7 +132,7 @@ def read_drugndc(mode):
     if pd2db == "yes":
         pd_to_postgres(df, table_name, mode)
     else:
-        glob_func.df_to_sql(df, table_name, mode, new_table, psql, cur, engine)
+        df_to_sql(df, table_name, mode, new_table, psql, cur, engine)
     print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading NDC and save in table ndcdata')
 
 def merge_table():
