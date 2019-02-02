@@ -103,11 +103,8 @@ def merge_table():
         LEFT JOIN ndctest ON ndctest.package_ndc = sdudtest.ndc;
         SELECT * FROM sdud_cleaned LIMIT 10;
     """
-    if (psyc == "psycopg2" or sraw == "raw") :
-        cur.execute(query)
-        conn.commit()
-    else:
-        engine.execute(query)
+    cur.execute(query)
+    conn.commit()
 
 def sum_by_state():
     query = """
@@ -115,11 +112,8 @@ def sum_by_state():
         FROM sdud_cleaned
         GROUP BY generic_name;
     """
-    if (psyc == "sqlalchemy" and sraw == "no"):
-        engine.execute(query)
-    else:
-        cur.execute(query)
-        conn.commit()
+    cur.execute(query)
+    conn.commit()
     rows = cur.fetchmany(size=10)
     print(rows)
 
