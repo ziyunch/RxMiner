@@ -25,7 +25,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
     if mode == 'replace':
         cur.execute("DROP TABLE " + table_name)
     sql_query = """
-        COPY %s FROM STDIN WITH
+        COPY temp FROM STDIN WITH
             CSV
             HEADER;
         """
