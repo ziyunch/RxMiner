@@ -11,7 +11,7 @@ def cleanColumns(columns):
         cols.append(col)
     return cols
 
-def df_to_sql(df, table_name, mode, new_table, psql, cur, conn, engine):
+def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
     """
     Save DataFrame to .csv, read csv as sql table in memory and copy the table
      directly in batch to PostgreSQL or Redshift.
@@ -37,7 +37,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, conn, engine):
             HEADER;
         """
     cur.copy_expert(sql=sql_query, file=data)
-    conn.commit()
+    cur.connection.commit()
     if (mode == 'replace' or new_table == 0):
         sql_query2 = """
             ALTER TABLE temp
@@ -53,4 +53,4 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, conn, engine):
             ALTER TABLE %s APPEND FROM temp;
         """
     cur.execute(sql_query2 % table_name)
-    conn.commit()
+    cur.connection.commit()
