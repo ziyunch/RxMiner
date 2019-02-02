@@ -33,7 +33,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
     """
     # Prepare schema for table
     df[:0].to_sql('temp', engine, if_exists = "replace", index=False)
-        df.columns = cleanColumns(df.columns)
+    df.columns = cleanColumns(df.columns)
     # replace mode
     if mode == 'replace':
         cur.execute("DROP TABLE " + table_name)
