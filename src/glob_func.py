@@ -3,6 +3,13 @@ import StringIO
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
 
+def cleanColumns(columns):
+    cols = []
+    for col in columns:
+        col = col.replace(' ', '_')
+        cols.append(col)
+    return cols
+
 def df_to_sql(df, table_name, mode):
     """
     Save DataFrame to .csv, read csv as sql table in memory and copy the table
