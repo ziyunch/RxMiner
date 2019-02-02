@@ -10,7 +10,7 @@ import json
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
 import StringIO
-from db_to_sql import db_to_sql
+from glob_func import db_to_sql
 
 def cleanColumns(columns):
     cols = []
