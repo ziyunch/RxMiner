@@ -11,7 +11,6 @@ import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
 import StringIO
 import glob_func
-from glob_func import db_to_sql
 
 def cleanColumns(columns):
     cols = []
@@ -69,7 +68,7 @@ def read_medicaid(year, mode):
     for chunk in chunks:
         new_table += 1
         chunk.dropna(subset=['tot_reimbursed'], inplace=True)
-        df_to_sql(df, table_name, mode)
+        glob_func.df_to_sql(df, table_name, mode)
         print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Medicaid data: reading in progress...')
     print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading Medicaid data and save in table '+psql_table)
 
@@ -93,7 +92,7 @@ def read_drugndc(mode):
     df = df[['package_ndc', 'generic_name', 'brand_name', 'labeler_name']]
     # Standardlize dashed NDC to CMS 11 digits NDC
     df.package_ndc = df.package_ndc.apply(convert_ndc)
-    df_to_sql(df, 'ndctest', mode)
+    glob_func.df_to_sql(df, 'ndctest', mode)
     print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading NDC and save in table ndcdata')
 
 def merge_table():
