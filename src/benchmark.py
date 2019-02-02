@@ -5,12 +5,12 @@ import datetime
 import pytz
 import boto
 import boto3
+import s3fs
 import pandas as pd
 import json
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
 import StringIO
-import glob_func
 
 def pd_to_postgres(df, table_name, mode):
     """
@@ -19,24 +19,63 @@ def pd_to_postgres(df, table_name, mode):
     # Writing Dataframe to PostgreSQL and replacing table if it already exists
     df.to_sql(name=table_name, con=engine, if_exists = mode, index=False)
 
-def df_to_postgres(df, table_name, mode):
-    data = StringIO.StringIO()
-    df.columns = cleanColumns(df.columns)
-    df.to_csv(data, header=False, index=False)
-    data.seek(0)
-    #raw = engine.raw_connection()
-    #curs = raw.cursor()
+def cleanColumns(columns):
+    cols = []
+    for col in columns:
+        col = col.replace(' ', '_')
+        cols.append(col)
+    return cols
+
+def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
+    """
+    Save DataFrame to .csv, read csv as sql table in memory and copy the table
+     directly in batch to PostgreSQL or Redshift.
+    """
+    # Prepare schema for table
+    df[:0].to_sql('temp', engine, if_exists = "replace", index=False)
+        df.columns = cleanColumns(df.columns)
+    # replace mode
     if mode == 'replace':
         cur.execute("DROP TABLE " + table_name)
-    empty_table = pd.io.sql.get_schema(df, table_name, con = engine)
-    empty_table = empty_table.replace('"', '')
-    cur.execute(empty_table)
-    sql_query = """
-        COPY %s FROM STDIN WITH
-            CSV
-            HEADER;
+        cur.connection.commit()
+    # Prepare data to temp
+    if psql == 'psql':
+        data = StringIO.StringIO()
+        df.to_csv(data, header=False, index=False)
+        data.seek(0)
+        sql_query = """
+            COPY temp FROM STDIN WITH
+                CSV
+                HEADER;
         """
-    cur.copy_expert(sql=sql_query % table_name, file=data)
+    else:
+        with s3.open('temp_file', 'w') as f:
+            df.to_csv(f, index=False, header=False)
+        sql_query = """
+            COPY temp
+            FROM 's3://rxminer/temp/temp_file.csv'
+            IAM_ROLE 'arn:aws:iam::809946175142:role/AWSServiceRoleForRedshift'
+            CSV
+            IGNOREHEADER 1;
+        """
+    cur.copy_expert(sql=sql_query, file=data)
+    cur.connection.commit()
+    # Copy or append table temp to target table
+    if (mode == 'replace' or new_table == 0):
+        sql_query2 = """
+            ALTER TABLE temp
+            RENAME TO %s;
+        """
+    elif psql == 'psql':
+        sql_query2 = """
+            INSERT INTO %s SELECT * FROM temp;
+            DROP TABLE temp;
+        """
+    else:
+        sql_query2 = """
+            ALTER TABLE %s APPEND FROM temp;
+        """
+    cur.execute(sql_query2 % table_name)
     cur.connection.commit()
 
 def read_medicaid(year, mode):
@@ -147,6 +186,7 @@ if __name__ == "__main__":
         port = '5439'
         dbname = 'rxtest'
         surl = 'redshift+psycopg2://'
+        s3 = s3fs.S3FileSystem(anon=False)
     if psyc == "psycopg2":
         print("Using Psycopg2")
         conn = psycopg2.connect(dbname=dbname, user=user, host=host, port=port, password=pswd)
