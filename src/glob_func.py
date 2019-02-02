@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 import StringIO
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
