@@ -146,7 +146,7 @@ if __name__ == "__main__":
         host = 'redshift-test.cgcoq5ionbrp.us-east-1.redshift.amazonaws.com'
         port = '5439'
         dbname = 'rxtest'
-        surl = 'redshift+postgresql://'
+        surl = 'redshift+psycopg2://'
     if psyc == "psycopg2":
         print("Using Psycopg2")
         conn = psycopg2.connect(dbname=dbname, user=user, host=host, port=port, password=pswd)
