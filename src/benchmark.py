@@ -72,6 +72,7 @@ def convert_ndc(ndc):
     return ndc
 
 def read_drugndc(mode):
+    new_table = 0
     s3 = boto3.resource('s3')
     content_object = s3.Object('rxminer', 'openfda/drug-ndc-0001-of-0001.json')
     file_content = content_object.get()['Body'].read().decode('utf-8')
@@ -163,11 +164,13 @@ if __name__ == "__main__":
     s3_path = 's3n://rxminer/'
     start0 = time.time()
     start = time.time()
-    if (psyc == "sqlalchemy" and sraw == "no") : read_medicaid(2016, 'append')
+    if (psyc == "sqlalchemy" and sraw == "no") :
+        read_medicaid(2016, 'append')
     end = time.time()
     print(end - start)
     start = time.time()
-    if (psyc == "sqlalchemy" and sraw == "no"): read_drugndc('replace')
+    if (psyc == "sqlalchemy" and sraw == "no"):
+        read_drugndc('append')
     end = time.time()
     print(end - start)
     start = time.time()
