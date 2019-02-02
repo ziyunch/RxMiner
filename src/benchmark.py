@@ -55,7 +55,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
         sql_query = """
             COPY temp
             FROM 's3://rxminer/temp.csv'
-            IAM_ROLE 'arn:aws:iam::809946175142:role/AWSServiceRoleForRedshift'
+            IAM_ROLE 'arn:aws:iam::809946175142:role/RedshiftCopyUnload'
             CSV
             IGNOREHEADER 1;
         """
