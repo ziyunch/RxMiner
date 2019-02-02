@@ -55,5 +55,6 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
     cur.copy_expert(sql=sql_query, file=data)
     cur.connection.commit()
     cur.execute(sql_query2 % table_name)
+    cur.connection.commit()
     cur.execute(sql_query3)
     cur.connection.commit()
