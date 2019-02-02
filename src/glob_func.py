@@ -40,6 +40,8 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
             COPY temp FROM STDIN WITH
                 CSV
                 HEADER;
+        """
+        sql_query2 = """
             INSERT INTO %s SELECT * FROM temp;
             DROP TABLE temp;
         """
@@ -48,6 +50,8 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
             COPY temp FROM STDIN WITH
                 CSV
                 HEADER;
+        """
+        sql_query2 = """
             ALTER TABLE %s APPEND FROM temp;
             DROP TABLE temp;
         """
@@ -55,4 +59,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
     empty_table = empty_table.replace('"', '')
     cur.execute(empty_table)
     cur.copy_expert(sql=sql_query % table_name, file=data)
+    cur.connection.commit()
+    if (mode == 'append' and new_table != 0):
+        cur.execute(sql_query2)
     cur.connection.commit()
