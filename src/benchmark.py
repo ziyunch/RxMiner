@@ -141,7 +141,7 @@ def read_drugndc(mode):
     df = df[['package_ndc', 'generic_name', 'brand_name', 'labeler_name']]
     # Standardlize dashed NDC to CMS 11 digits NDC
     df.package_ndc = df.package_ndc.apply(convert_ndc)
-    df.generic_name = df.generic_name.apply(lambda x: x[:255])
+    df.generic_name = df.generic_name.str[:100]
     if pd2db == "yes":
         pd_to_postgres(df, table_name, mode)
     else:

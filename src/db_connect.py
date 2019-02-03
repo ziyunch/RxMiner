@@ -1,6 +1,7 @@
 import os
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
+import s3fs
 
 class db_connect:
     def __init__(self, psql=True):
@@ -14,6 +15,7 @@ class db_connect:
         host = os.getenv('POSTGRESQL_HOST_IP', 'default')
         port = os.getenv('POSTGRESQL_PORT', 'default')
         dbname = os.getenv('POSTGRESQL_DATABASE', 'default')
+        surl = 'postgresql://'
     else:
         # Connect to localhost
         user = os.getenv('REDSHIFT_USER', 'default')
@@ -21,13 +23,17 @@ class db_connect:
         host = os.getenv('REDSHIFT_HOST_IP', 'default')
         port = os.getenv('REDSHIFT_PORT', 'default')
         dbname = os.getenv('REDSHIFT_DATABASE', 'default')
-    self.engine = sa.create_engine('postgresql://'+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
+        surl = 'redshift+psycopg2://'
+        s3 = s3fs.S3FileSystem(anon=False)
+    self.engine = sa.create_engine(surl+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
     self.con = engine.connect()
+    self.conn = engine.raw_connection()
+    cur = conn.cursor()
 
-def get_engine(self):
+def engine_connect(self):
     return self.engine, self.con
 
-def get_conn(self):
+def raw_connect(self):
     return self.conn, self.cur
 
 def close_conn(self):
