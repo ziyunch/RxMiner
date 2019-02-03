@@ -80,13 +80,13 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
             sql_query2 = """
                 ALTER TABLE temp
                 RENAME TO %s;
-                COMMIT;VACUUM temp;COMMIT;
+                COMMIT;VACUUM;COMMIT;
             """
         else:
             sql_query2 = """
                 INSERT INTO %s SELECT * FROM temp;
                 DROP TABLE temp;
-                COMMIT;VACUUM temp;COMMIT;
+                COMMIT;VACUUM;COMMIT;
             """
         cur.execute(sql_query2 % table_name)
 
