@@ -84,7 +84,8 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
             """
         else:
             sql_query2 = """
-                ALTER TABLE %s APPEND FROM temp;
+                INSERT INTO %s SELECT * FROM temp;
+                DROP TABLE temp;
                 COMMIT;VACUUM temp;COMMIT;
             """
         cur.execute(sql_query2 % table_name)
