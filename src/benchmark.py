@@ -72,7 +72,7 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
             IAM_ROLE 'arn:aws:iam::809946175142:role/RedshiftCopyUnload'
             CSV
             IGNOREHEADER 1;
-            COMMIT;VACUUM;COMMIT;
+            COMMIT;
         """
         cur.execute(sql_query)
         # Copy or append table temp to target table
@@ -80,13 +80,12 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
             sql_query2 = """
                 ALTER TABLE temp
                 RENAME TO %s;
-                COMMIT;VACUUM;COMMIT;
+                COMMIT;VACUUM temp;COMMIT;
             """
         else:
             sql_query2 = """
                 ALTER TABLE %s APPEND FROM temp;
-                VACUUM;
-                COMMIT;VACUUM;COMMIT;
+                COMMIT;VACUUM temp;COMMIT;
             """
         cur.execute(sql_query2 % table_name)
 
