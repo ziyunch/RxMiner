@@ -67,31 +67,26 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
         with s3.open('rxminer/temp.csv', 'wb') as f:
             df.to_csv(f, index=False, header=False)
         sql_query = """
-            set autocommit on;
             COPY temp
             FROM 's3://rxminer/temp.csv'
             IAM_ROLE 'arn:aws:iam::809946175142:role/RedshiftCopyUnload'
             CSV
             IGNOREHEADER 1;
-            VACUUM;
-            set autocommit off;
+            COMMIT;VACUUM;COMMIT;
         """
         cur.execute(sql_query)
         # Copy or append table temp to target table
         if (mode == 'replace' or new_table == 0):
             sql_query2 = """
-                set autocommit on;
                 ALTER TABLE temp
                 RENAME TO %s;
-                VACUUM;
-                set autocommit off;
+                COMMIT;VACUUM;COMMIT;
             """
         else:
             sql_query2 = """
-                set autocommit on;
                 ALTER TABLE %s APPEND FROM temp;
                 VACUUM;
-                set autocommit off;
+                COMMIT;VACUUM;COMMIT;
             """
         cur.execute(sql_query2 % table_name)
 
