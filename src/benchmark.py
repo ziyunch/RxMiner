@@ -49,35 +49,51 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
                 HEADER;
         """
         cur.copy_expert(sql=sql_query, file=data)
+        cur.connection.commit()
+        # Copy or append table temp to target table
+        if (mode == 'replace' or new_table == 0):
+            sql_query2 = """
+                ALTER TABLE temp
+                RENAME TO %s;
+            """
+        else:
+            sql_query2 = """
+                INSERT INTO %s SELECT * FROM temp;
+                DROP TABLE temp;
+            """
+        cur.execute(sql_query2 % table_name)
+        cur.connection.commit()
     else:
         with s3.open('rxminer/temp.csv', 'wb') as f:
             df.to_csv(f, index=False, header=False)
         sql_query = """
+            set autocommit on;
             COPY temp
             FROM 's3://rxminer/temp.csv'
             IAM_ROLE 'arn:aws:iam::809946175142:role/RedshiftCopyUnload'
             CSV
             IGNOREHEADER 1;
+            VACUUM;
+            set autocommit off;
         """
         cur.execute(sql_query)
-    cur.connection.commit()
-    # Copy or append table temp to target table
-    if (mode == 'replace' or new_table == 0):
-        sql_query2 = """
-            ALTER TABLE temp
-            RENAME TO %s;
-        """
-    elif psql == 'psql':
-        sql_query2 = """
-            INSERT INTO %s SELECT * FROM temp;
-            DROP TABLE temp;
-        """
-    else:
-        sql_query2 = """
-            ALTER TABLE %s APPEND FROM temp;
-        """
-    cur.execute(sql_query2 % table_name)
-    cur.connection.commit()
+        # Copy or append table temp to target table
+        if (mode == 'replace' or new_table == 0):
+            sql_query2 = """
+                set autocommit on;
+                ALTER TABLE temp
+                RENAME TO %s;
+                VACUUM;
+                set autocommit off;
+            """
+        else:
+            sql_query2 = """
+                set autocommit on;
+                ALTER TABLE %s APPEND FROM temp;
+                VACUUM;
+                set autocommit off;
+            """
+        cur.execute(sql_query2 % table_name)
 
 def read_medicaid(year, mode):
     type_dir = 'sdud/medicaid_sdud_'
