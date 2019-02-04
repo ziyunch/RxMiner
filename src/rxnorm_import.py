@@ -22,7 +22,7 @@ def rxnorm_crawler():
             r = requests.get(url)
             if r.status_code == 200:
                 #upload the file
-                file_name = re.findall('.*?(\d+.zip)', url)
+                file_name = re.findall('.*?(\d+.zip)', url)[0]
                 k = Key(bucket)
                 k.key = 'rxnorm/' + file_name
                 k.content_type = r.headers['content-type']
