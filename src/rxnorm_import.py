@@ -30,11 +30,11 @@ def rxnorm_crawler():
 
 
 if __name__ == "__main__":
-# Connect to the s3 bucket
-aws_access_key = os.getenv('AWS_ACCESS_KEY_ID', 'default')
-aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', 'default')
-conn = boto.connect_s3(aws_access_key, aws_secret_access_key)
-bucket_name = "rxminer"
-# Setup the bucket
-bucket = conn.get_bucket(bucket_name)
-rxnorm_crawler()
+    # Connect to the s3 bucket
+    aws_access_key = os.getenv('AWS_ACCESS_KEY_ID', 'default')
+    aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', 'default')
+    conn = boto.connect_s3(aws_access_key, aws_secret_access_key)
+    bucket_name = "rxminer"
+    # Setup the bucket
+    bucket = conn.get_bucket(bucket_name)
+    rxnorm_crawler()
