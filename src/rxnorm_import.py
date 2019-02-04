@@ -13,7 +13,7 @@ def rxnorm_crawler():
         ]
     for weburl in weburls:
         # Get contents of webpage
-        conn = urllib2.urlopen(url)
+        conn = urllib2.urlopen(weburl)
         html = conn.read()
         # Find urls of all RxNorm files
         pattern = '<a\s*href=[\'|"](.*?/kss/rxnorm/RxNorm_full_\d+.zip)[\'|"]>'
