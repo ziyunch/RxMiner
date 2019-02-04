@@ -13,7 +13,7 @@ def rxnorm_crawler():
         ]
     for weburl in weburls:
         # Get contents of webpage
-        conn = urllib2.urlopen(url)
+        conn = urllib2.urlopen(weburl)
         html = conn.read()
         # Find urls of all RxNorm files
         pattern = '<a\s*href=[\'|"](.*?/kss/rxnorm/RxNorm_full_\d+.zip)[\'|"]>'
@@ -22,7 +22,7 @@ def rxnorm_crawler():
             r = requests.get(url)
             if r.status_code == 200:
                 #upload the file
-                file_name = re.findall('.*?(\d+.zip)', url)
+                file_name = re.findall('.*?(\d+.zip)', url)[0]
                 k = Key(bucket)
                 k.key = 'rxnorm/' + file_name
                 k.content_type = r.headers['content-type']
@@ -30,11 +30,11 @@ def rxnorm_crawler():
 
 
 if __name__ == "__main__":
-# Connect to the s3 bucket
-aws_access_key = os.getenv('AWS_ACCESS_KEY_ID', 'default')
-aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', 'default')
-conn = boto.connect_s3(aws_access_key, aws_secret_access_key)
-bucket_name = "rxminer"
-# Setup the bucket
-bucket = conn.get_bucket(bucket_name)
-rxnorm_crawler()
+    # Connect to the s3 bucket
+    aws_access_key = os.getenv('AWS_ACCESS_KEY_ID', 'default')
+    aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', 'default')
+    conn = boto.connect_s3(aws_access_key, aws_secret_access_key)
+    bucket_name = "rxminer"
+    # Setup the bucket
+    bucket = conn.get_bucket(bucket_name)
+    rxnorm_crawler()
