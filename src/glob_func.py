@@ -3,54 +3,92 @@ import pandas as pd
 import StringIO
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
+import time
+import datetime
 
-def cleanColumns(columns):
+def time_stamp():
+    ts = datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")
+    return ts
+
+def clean_columns(columns):
     cols = []
     for col in columns:
         col = col.replace(' ', '_')
         cols.append(col)
     return cols
 
-def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
+def df_to_redshift(df, table_name, mode, new_table, cur, engine):
     """
     Save DataFrame to .csv, read csv as sql table in memory and copy the table
      directly in batch to PostgreSQL or Redshift.
     """
     # Prepare schema for table
     df[:0].to_sql('temp', engine, if_exists = "replace", index=False)
-    # Prepare data
-    data = StringIO.StringIO()
-    df.columns = cleanColumns(df.columns)
-    df.to_csv(data, header=False, index=False)
-    data.seek(0)
-    #raw = engine.raw_connection()
-    #curs = raw.cursor()
+    df.columns = clean_columns(df.columns)
+    # replace mode
     if mode == 'replace':
         cur.execute("DROP TABLE " + table_name)
         cur.connection.commit()
-    #empty_table = pd.io.sql.get_schema(df, 'temp', con = engine)
-    #empty_table = empty_table.replace('"', '')
-    #cur.execute(empty_table)
+    # Prepare data to temp
+    with s3.open('rxminer/temp.csv', 'wb') as f:
+        df.to_csv(f, index=False, header=False)
+    sql_query = """
+        COPY temp
+        FROM 's3://rxminer/temp.csv'
+        IAM_ROLE 'arn:aws:iam::809946175142:role/RedshiftCopyUnload'
+        CSV
+        IGNOREHEADER 1;
+        COMMIT;
+    """
+    cur.execute(sql_query)
+    # Copy or append table temp to target table
+    if (mode == 'replace' or new_table == 0):
+        sql_query2 = """
+            ALTER TABLE temp
+            RENAME TO %s;
+            COMMIT;VACUUM;COMMIT;
+        """
+    else:
+        sql_query2 = """
+            INSERT INTO %s SELECT * FROM temp;
+            DROP TABLE temp;
+            COMMIT;VACUUM;COMMIT;
+        """
+    cur.execute(sql_query2 % table_name)
+
+def df_to_psql(df, table_name, mode, new_table, cur, engine):
+    """
+    Save DataFrame to .csv, read csv as sql table in memory and copy the table
+     directly in batch to PostgreSQL.
+    """
+    # Prepare schema for table
+    df[:0].to_sql('temp', engine, if_exists = "replace", index=False)
+    df.columns = cleanColumns(df.columns)
+    # replace mode
+    if mode == 'replace':
+        cur.execute("DROP TABLE " + table_name)
+        cur.connection.commit()
+    # Prepare data to temp
+    data = StringIO.StringIO()
+    df.to_csv(data, header=False, index=False)
+    data.seek(0)
     sql_query = """
         COPY temp FROM STDIN WITH
             CSV
             HEADER;
-        """
+    """
     cur.copy_expert(sql=sql_query, file=data)
     cur.connection.commit()
+    # Copy or append table temp to target table
     if (mode == 'replace' or new_table == 0):
         sql_query2 = """
             ALTER TABLE temp
             RENAME TO %s;
         """
-    elif psql == 'psql':
+    else:
         sql_query2 = """
             INSERT INTO %s SELECT * FROM temp;
             DROP TABLE temp;
-        """
-    else:
-        sql_query2 = """
-            ALTER TABLE %s APPEND FROM temp;
         """
     cur.execute(sql_query2 % table_name)
     cur.connection.commit()
