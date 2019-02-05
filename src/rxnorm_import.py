@@ -27,7 +27,7 @@ def rxnorm_crawler():
                 k.key = 'rxnorm/' + file_name
                 k.content_type = r.headers['content-type']
                 k.set_contents_from_string(r.content)
-
+    # Need to add cookies information
 
 if __name__ == "__main__":
     # Connect to the s3 bucket

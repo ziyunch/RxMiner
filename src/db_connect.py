@@ -4,7 +4,7 @@ import sqlalchemy as sa # Package for accessing SQL databases via Python
 import s3fs
 
 class db_connect:
-    def __init__(self, psql=True):
+    def __init__(self, psql=False):
     self.conn = None
     self.cur = None
     self.engine = None
@@ -24,7 +24,7 @@ class db_connect:
         port = os.getenv('REDSHIFT_PORT', 'default')
         dbname = os.getenv('REDSHIFT_DATABASE', 'default')
         surl = 'redshift+psycopg2://'
-        s3 = s3fs.S3FileSystem(anon=False)
+        s3fuse = s3fs.S3FileSystem(anon=False)
     self.engine = sa.create_engine(surl+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
     self.con = engine.connect()
     self.conn = engine.raw_connection()
@@ -35,6 +35,9 @@ def engine_connect(self):
 
 def raw_connect(self):
     return self.conn, self.cur
+
+def s3_fuse(self):
+    return self.s3fuse
 
 def close_conn(self):
     self.con.close()
