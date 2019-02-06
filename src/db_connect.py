@@ -27,10 +27,10 @@ class db_connect:
             self.port = str(os.getenv('POSTGRESQL_PORT', 'default'))
             self.dbname = os.getenv('POSTGRESQL_DATABASE', 'default')
             self.surl = 'postgresql://'
-        self.engine = sa.create_engine(surl+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
+        self.engine = sa.create_engine(self.surl+self.user+':'+self.pswd+'@'+self.host+':'+self.port+'/'+self.dbname,echo=False)
         self.con = self.engine.connect()
         self.conn = self.engine.raw_connection()
-        cur = self.conn.cursor()
+        self.cur = self.conn.cursor()
 
     def engine_connect(self):
         print(glob_func.time_stamp()+' Engine connected.')
