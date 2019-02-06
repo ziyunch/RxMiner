@@ -38,6 +38,16 @@ def clean_stem_table(df):
     }).assign(**{lst_col:np.concatenate(x[lst_col].values)})[x.columns.tolist()]
     return df1
 
+def add_opioid(df1):
+    opioidlist = [
+        '-fentanyl', '-orphine', '-meperidine', '-isonipecaine',
+        '-pethidine', '-orphone', '-codone', '-adone', '-tapentadol',
+        '-orphinone', '-codeine']
+    df2 = pd.DataFrame(opioidlist, columns=['stem'])
+    df2['definition'] = 'Opioid'
+    df = df1.append(df2)
+    return df
+
 def regex_pattern(stem_str):
     str_list = stem_str.split('-')
     # add word boundary
@@ -54,6 +64,7 @@ def regex_file(url):
     df = get_stem_table(url)
     df = clean_stem_table(df)
     df.stem = df.stem.str.replace(' ','')
+    df = add_opioid(df)
     df['regex'] = df.stem.apply(regex_pattern)
     return df
 
