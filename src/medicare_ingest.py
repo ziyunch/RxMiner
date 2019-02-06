@@ -9,7 +9,7 @@ def read_medicare(year, mode, new_table):
     chunks = pd.read_csv(s3_path+type_dir+str(year)+'.csv', chunksize=chunk_size)
     for chunk in chunks:
         chunk["year"] = year
-        chunk = rxgen_parse.rxgen_class(regex_df, chunk, 'generic_name')
+        chunk = rxgen_parser.rxgen_class(regex_df, chunk, 'generic_name')
         glob_func.df_to_redshift(chunk, table_name, mode, new_table, cur, engine, s3f)
         new_table = False
         print(glob_func.time_stamp()+' Medicare data: reading in progress...')
@@ -27,8 +27,8 @@ if __name__ == "__main__":
     chunk_size = 200000
     url = 'https://druginfo.nlm.nih.gov/drugportal/jsp/drugportal/DrugNameGenericStems.jsp'
     regex_df = rxgen_parser.regex_file(url)
-    pupd_dict = {'2013':True,'2014':False,'2015':False,'2016':False}
-    for year,new_table in pupd_dict.items():
-        read_medicare(year, 'append', new_table)
+    read_medicare(2013, 'append', True)
+    for year in [2014,2015,2016]:
+        read_medicare(year, 'append', False)
     db_connection.close_engine()
     db_connection.close_conn()

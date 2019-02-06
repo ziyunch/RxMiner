@@ -14,7 +14,7 @@ def read_medicaid(year, mode, new_table):
         ]
     d_type = {'ndc': str}
     chunks = pd.read_csv(
-        s3_path+type_dir+year+'.csv',
+        s3_path+type_dir+str(year)+'.csv',
         usecols = cols_to_keep,
         names = column_names,
         dtype = d_type,
@@ -37,8 +37,8 @@ if __name__ == "__main__":
     s3f = db_connection.s3_fuse()
     s3_path = 's3n://rxminer/'
     chunk_size = 200000
-sdud_dict = {'2013':True,'2014':False,'2015':False,'2016':False}
-for year,new_table in sdud_dict.items():
-    read_medicaid(year, 'append', new_table)
+    read_medicaid(2013, 'append', True)
+    for year in [2014,2015,2016]:
+        read_medicaid(year, 'append', False)
     db_connection.close_engine()
     db_connection.close_conn()
