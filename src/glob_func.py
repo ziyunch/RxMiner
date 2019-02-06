@@ -17,7 +17,7 @@ def clean_columns(columns):
         cols.append(col)
     return cols
 
-def df_to_redshift(df, table_name, mode, new_table, cur, engine):
+def df_to_redshift(df, table_name, mode, new_table, cur, engine, s3):
     """
     Save DataFrame to .csv, read csv as sql table in memory and copy the table
      directly in batch to PostgreSQL or Redshift.

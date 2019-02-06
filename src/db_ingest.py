@@ -85,10 +85,16 @@ def read_npi(file_name, mode):
         print('NPI data: reading in progress...')
     print(datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')+' Finish Reading NPI and save in table npidata')
 
-def convert_ndc(ndc):
+def convert_ndc_11(ndc):
     temp = ndc.split('-')
     if len(temp) == 3:
         ndc = temp[0].zfill(5)+temp[1].zfill(4)+temp[2].zfill(2)
+    return ndc
+
+def convert_ndc_9(ndc):
+    temp = ndc.split('-')
+    if len(temp) == 2:
+        ndc = temp[0].zfill(5)+temp[1].zfill(4)
     return ndc
 
 def read_drugndc(mode):
@@ -125,7 +131,7 @@ if __name__ == "__main__":
     s3_path = 's3n://rxminer/'
     #s3_path = '../test/rxdata/'
     print(datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')+" PostgreSQL connected")
-    # read_drugndc('replace')
+    read_drugndc('append')
     read_medicaid(2016, 'append')
     read_npi('npidata_pfile_20050523-20190113', 'append')
     read_medicare(2016, 'append')

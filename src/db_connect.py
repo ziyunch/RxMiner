@@ -2,6 +2,7 @@ import os
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
 import s3fs
+import glob_func
 
 class db_connect:
     def __init__(self, psql=False):
@@ -31,16 +32,21 @@ class db_connect:
     cur = conn.cursor()
 
 def engine_connect(self):
+    print(glob_func.time_stamp()+' Engine connected.')
     return self.engine, self.con
 
 def raw_connect(self):
+    print(glob_func.time_stamp()+' Cursor ready.')
     return self.conn, self.cur
 
 def s3_fuse(self):
     return self.s3fuse
 
 def close_conn(self):
-    self.con.close()
+    self.cur.close()
+    self.conn.close()
+    print(glob_func.time_stamp()+' Cursor closed.')
 
 def close_engine(self):
-    self.cur.close()
+    self.con.close()
+    print(glob_func.time_stamp()+' Engine closed.')
