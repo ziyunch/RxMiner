@@ -44,7 +44,7 @@ def read_npi(file_name, mode):
 if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
     pd.options.mode.chained_assignment = None
-    db_connection = db_connect()
+    db_connection = db_connect.db_connect()
     engine, con = db_connection.engine_connect()
     conn, cur = db_connection.raw_connect()
     s3f = db_connection.s3_fuse()
