@@ -53,4 +53,4 @@ if __name__ == "__main__":
     chunk_size = 200000
     read_npi('npidata_pfile_20050523-20190113', 'append')
     db_connection.close_engine()
-    con.close()
+    db_connection.close_conn()
