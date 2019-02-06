@@ -40,6 +40,7 @@ def read_npi(file_name, mode):
         new_table += 1
         print(glob_func.time_stamp()+' NPI data: reading in progress...')
     print(glob_func.time_stamp()+' Finish Reading NPI and save in table npidata')
+    return new_table
 
 if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
@@ -51,6 +52,6 @@ if __name__ == "__main__":
     s3_path = 's3n://rxminer/'
     new_table = 0
     chunk_size = 200000
-    read_npi('npidata_pfile_20050523-20190113', 'append')
+    new_table = read_npi('npidata_pfile_20050523-20190113', 'append')
     db_connection.close_engine()
     db_connection.close_conn()
