@@ -14,7 +14,7 @@ def read_medicaid(year, mode, new_table):
         ]
     d_type = {'ndc': str}
     chunks = pd.read_csv(
-        s3_path+type_dir+str(year)+'.csv',
+        s3_path+type_dir+year+'.csv',
         usecols = cols_to_keep,
         names = column_names,
         dtype = d_type,
@@ -24,7 +24,7 @@ def read_medicaid(year, mode, new_table):
         chunk = chunk.dropna(subset=['tot_reimbursed'])
         chunk['ndc9'] = chunk.ndc.str[:9]
         glob_func.df_to_redshift(chunk, table_name, mode, new_table, cur, engine, s3f)
-        new_table =False
+        new_table = False
         print(glob_func.time_stamp()+' Medicaid data: reading in progress...')
     print(glob_func.time_stamp()+' Finish Reading Medicaid data and save in table '+psql_table)
 
@@ -37,8 +37,8 @@ if __name__ == "__main__":
     s3f = db_connection.s3_fuse()
     s3_path = 's3n://rxminer/'
     chunk_size = 200000
-    sdud_dict = {'2013':True,'2014':False,'2015':False,'2016':False}
-    for year,new_table in sdud_dict.items():
-        read_medicaid(year, 'append', new_table)
+sdud_dict = {'2013':True,'2014':False,'2015':False,'2016':False}
+for year,new_table in sdud_dict.items():
+    read_medicaid(year, 'append', new_table)
     db_connection.close_engine()
     db_connection.close_conn()
