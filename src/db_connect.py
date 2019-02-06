@@ -12,21 +12,21 @@ class db_connect:
         self.con = None
         if redshift:
             # Connect to Redshift
-            user = os.getenv('REDSHIFT_USER', 'default')
-            pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
-            host = os.getenv('REDSHIFT_HOST_IP', 'default')
-            port = '5439'
-            dbname = os.getenv('REDSHIFT_DATABASE', 'default')
-            surl = 'redshift+psycopg2://'
-            s3fuse = s3fs.S3FileSystem(anon=False)
+            self.user = os.getenv('REDSHIFT_USER', 'default')
+            self.pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
+            self.host = os.getenv('REDSHIFT_HOST_IP', 'default')
+            self.port = '5439'
+            self.dbname = os.getenv('REDSHIFT_DATABASE', 'default')
+            self.surl = 'redshift+psycopg2://'
+            self.s3fuse = s3fs.S3FileSystem(anon=False)
         else:
             # Connect to PostgreSQL
-            user = os.getenv('POSTGRESQL_USER', 'default')
-            pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
-            host = os.getenv('POSTGRESQL_HOST_IP', 'default')
-            port = str(os.getenv('POSTGRESQL_PORT', 'default'))
-            dbname = os.getenv('POSTGRESQL_DATABASE', 'default')
-            surl = 'postgresql://'
+            self.user = os.getenv('POSTGRESQL_USER', 'default')
+            self.pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
+            self.host = os.getenv('POSTGRESQL_HOST_IP', 'default')
+            self.port = str(os.getenv('POSTGRESQL_PORT', 'default'))
+            self.dbname = os.getenv('POSTGRESQL_DATABASE', 'default')
+            self.surl = 'postgresql://'
         self.engine = sa.create_engine(surl+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
         self.con = self.engine.connect()
         self.conn = self.engine.raw_connection()
