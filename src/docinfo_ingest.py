@@ -37,7 +37,7 @@ def read_npi(file_name, mode):
         skiprows = 1)
     for chunk in chunks:
         clean_npi(chunk)
-        df_to_redshift(chunk, table_name, mode, new_table, cur, engine, s3f)
+        glob_func.df_to_redshift(chunk, table_name, mode, new_table, cur, engine, s3f)
         new_table += 1
         print(glob_func.time_stamp()+' NPI data: reading in progress...')
     print(glob_func.time_stamp()+' Finish Reading NPI and save in table npidata')

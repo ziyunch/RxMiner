@@ -5,20 +5,13 @@ import s3fs
 import glob_func
 
 class db_connect:
-    def __init__(self, psql=False):
+    def __init__(self, redshift=True):
     self.conn = None
     self.cur = None
     self.engine = None
     self.con = None
-    if psql:
-        user = os.getenv('POSTGRESQL_USER', 'default')
-        pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
-        host = os.getenv('POSTGRESQL_HOST_IP', 'default')
-        port = os.getenv('POSTGRESQL_PORT', 'default')
-        dbname = os.getenv('POSTGRESQL_DATABASE', 'default')
-        surl = 'postgresql://'
-    else:
-        # Connect to localhost
+    if redshift:
+        # Connect to Redshift
         user = os.getenv('REDSHIFT_USER', 'default')
         pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
         host = os.getenv('REDSHIFT_HOST_IP', 'default')
@@ -26,6 +19,14 @@ class db_connect:
         dbname = os.getenv('REDSHIFT_DATABASE', 'default')
         surl = 'redshift+psycopg2://'
         s3fuse = s3fs.S3FileSystem(anon=False)
+    else:
+        # Connect to PostgreSQL
+        user = os.getenv('POSTGRESQL_USER', 'default')
+        pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
+        host = os.getenv('POSTGRESQL_HOST_IP', 'default')
+        port = os.getenv('POSTGRESQL_PORT', 'default')
+        dbname = os.getenv('POSTGRESQL_DATABASE', 'default')
+        surl = 'postgresql://'
     self.engine = sa.create_engine(surl+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
     self.con = engine.connect()
     self.conn = engine.raw_connection()
