@@ -42,8 +42,10 @@ def regex_pattern(stem_str):
     str_list = stem_str.split('-')
     # add word boundary
     if len(str_list) == 2:
-        pos = len(str_list)-str_list.index('')*2
+        pos = 2 - str_list.index('')*2
+        pos2 = 3 - str_list.index('')*3
         str_list.insert(pos, '\\b')
+        str_list.insert(pos, '.*')
     # replace '-' with '.*'
     pat_str = ''.join([i if len(i) > 0 else '.*' for i in str_list])
     return pat_str
