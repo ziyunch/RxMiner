@@ -15,7 +15,7 @@ def get_stem_table(url):
     for tr in rows:
         td = tr.find_all('td')
         # Only import stem names not in a subgroup
-        if tr.find('td', {'class':'sg'}) == None:
+        if (tr.find('td', {'class':'sg'}) == None and tr.find('td', {'class':'sg2'}) == None):
             row = [tr.text for tr in td]
             l.append(row)
     df = pd.DataFrame(l, columns=['stem', 'definition', 'examples'], index=None)
@@ -55,6 +55,12 @@ def regex_file(url):
     df['regex'] = df.stem.apply(regex_pattern)
     return df
 
+def rxgen_class(regex_df, df, gen_colname):
+    to_repl = regex_df.regex.values.tolist()
+    vals = regex_df.definition.values.tolist()
+    df['class'] = df[gen_colname].replace(to_repl, vals, regex=True)
+    return df
+
 if __name__ == "__main__":
     url = 'https://druginfo.nlm.nih.gov/drugportal/jsp/drugportal/DrugNameGenericStems.jsp'
-    df = regex_file(url)
+    regex_df = regex_file(url)
