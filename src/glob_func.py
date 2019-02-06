@@ -5,8 +5,10 @@ import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
 import time
 import datetime
+import pytz
 
 def time_stamp():
+    eastern = pytz.timezone('US/Eastern')
     ts = datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")
     return ts
 

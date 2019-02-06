@@ -15,7 +15,7 @@ def clean_npi(df):
     df.loc[df.practice_country != 'US', 'practice_postal'] = "00000"
     return(df)
 
-def read_npi(file_name, mode):
+def read_npi(file_name, mode, new_table):
     type_dir = 'npi/'
     table_name = 'npidata'
     cols_to_keep = [0,1,4,5,6,31,32,33]
@@ -49,8 +49,7 @@ if __name__ == "__main__":
     conn, cur = db_connection.raw_connect()
     s3f = db_connection.s3_fuse()
     s3_path = 's3n://rxminer/'
-    new_table = 0
     chunk_size = 200000
-    read_npi('npidata_pfile_20050523-20190113', 'append')
+    read_npi('npidata_pfile_20050523-20190113', 'append', 0)
     db_connection.close_engine()
     db_connection.close_conn()

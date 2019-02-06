@@ -1,6 +1,7 @@
 import pandas as pd
 import glob_func
 import db_connect
+import rxgen_parser
 
 def convert_ndc_11(ndc):
     temp = ndc.split('-')
@@ -15,7 +16,6 @@ def convert_ndc_9(ndc):
     return ndc
 
 def read_drugndc(mode):
-    table_name = 'ndctest'
     s3 = boto3.resource('s3')
     content_object = s3.Object('rxminer', 'openfda/drug-ndc-0001-of-0001.json')
     file_content = content_object.get()['Body'].read().decode('utf-8')
@@ -25,12 +25,15 @@ def read_drugndc(mode):
     df1 = pd.io.json.json_normalize(json_content['results'], 'packaging', meta=['product_id'])
     df2 = pd.io.json.json_normalize(json_content['results'])
     df = df1.merge(df2, on='product_id')
-    # Compress the dataframe by dropping unneccssary information
-    df = df[['package_ndc', 'generic_name', 'brand_name', 'labeler_name']]
-    # Standardlize dashed NDC to CMS 11 digits NDC
-    df.package_ndc = df.package_ndc.apply(convert_ndc)
+    # Standardlize dashed NDC to CMS 11/9 digits NDC
+    df.package_ndc = df.package_ndc.apply(convert_ndc_11)
+    df.product_ndc = df.product_ndc.apply(convert_ndc_9)
     df.generic_name = df.generic_name.str[:100]
-    glob_func.df_to_redshift(df, table_name, mode, new_table, psql, cur, engine, s3f)
+    # Compress the dataframe by dropping unneccssary information
+    df11 = df[['package_ndc', 'generic_name', 'product_ndc']]
+    glob_func.df_to_redshift(df11, 'ndc11', mode, new_table, psql, cur, engine, s3f)
+    df9 = df[['product_ndc', 'generic_name', 'brand_name', 'labeler_name']]
+    df9 = rxgen_parse.rxgen_class(regex_df, df9, 'generic_name')
     print(glob_func.time_stamp()+' Finish Reading NDC and save in table ndcdata')
 
 if __name__ == "__main__":
@@ -43,6 +46,8 @@ if __name__ == "__main__":
     s3_path = 's3n://rxminer/'
     new_table = 0
     chunk_size = 200000
+    url = 'https://druginfo.nlm.nih.gov/drugportal/jsp/drugportal/DrugNameGenericStems.jsp'
+    regex_df = rxgen_parser.regex_file(url)
     read_drugndc('append')
     db_connection.close_engine()
     db_connection.close_conn()
