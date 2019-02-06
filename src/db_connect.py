@@ -34,7 +34,6 @@ class db_connect:
             self.port = str(os.getenv('POSTGRESQL_PORT', 'default'))
             self.dbname = os.getenv('POSTGRESQL_DATABASE', 'default')
             self.surl = 'postgresql://'
-        print(self.port)
         self.engine = sa.create_engine(self.surl+self.user+':'+self.pswd+'@'+self.host+':'+self.port+'/'+self.dbname,echo=False)
         self.con = self.engine.connect()
         self.conn = self.engine.raw_connection()
