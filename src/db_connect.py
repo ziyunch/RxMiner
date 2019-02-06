@@ -28,9 +28,9 @@ class db_connect:
             dbname = os.getenv('POSTGRESQL_DATABASE', 'default')
             surl = 'postgresql://'
         self.engine = sa.create_engine(surl+user+':'+pswd+'@'+host+':'+port+'/'+dbname,echo=False)
-        self.con = engine.connect()
-        self.conn = engine.raw_connection()
-        cur = conn.cursor()
+        self.con = self.engine.connect()
+        self.conn = self.engine.raw_connection()
+        cur = self.conn.cursor()
 
     def engine_connect(self):
         print(glob_func.time_stamp()+' Engine connected.')
