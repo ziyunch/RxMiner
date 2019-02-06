@@ -44,7 +44,7 @@ def df_to_redshift(df, table_name, mode, new_table, cur, engine, s3):
     """
     cur.execute(sql_query)
     # Copy or append table temp to target table
-    if (mode == 'replace' or new_table == 0):
+    if (mode == 'replace' or new_table):
         sql_query2 = """
             ALTER TABLE temp
             RENAME TO %s;
@@ -82,7 +82,7 @@ def df_to_psql(df, table_name, mode, new_table, cur, engine):
     cur.copy_expert(sql=sql_query, file=data)
     cur.connection.commit()
     # Copy or append table temp to target table
-    if (mode == 'replace' or new_table == 0):
+    if (mode == 'replace' or new_table):
         sql_query2 = """
             ALTER TABLE temp
             RENAME TO %s;
