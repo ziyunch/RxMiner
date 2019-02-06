@@ -45,7 +45,7 @@ def regex_pattern(stem_str):
         pos = 2 - str_list.index('')*2
         pos2 = 3 - str_list.index('')*3
         str_list.insert(pos, '\\b')
-        str_list.insert(pos, '.*')
+        str_list.insert(pos2, '.*')
     # replace '-' with '.*'
     pat_str = ''.join([i if len(i) > 0 else '.*' for i in str_list])
     return pat_str
@@ -60,7 +60,8 @@ def regex_file(url):
 def rxgen_class(regex_df, df, gen_colname):
     to_repl = regex_df.regex.values.tolist()
     vals = regex_df.definition.values.tolist()
-    df['class'] = df[gen_colname].replace(to_repl, vals, regex=True)
+    df['rxclass'] = df[gen_colname].replace(to_repl, vals, regex=True)
+    df.rxclass[~df.rxclass.isin(vals)] = 'Other'
     return df
 
 if __name__ == "__main__":

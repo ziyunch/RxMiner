@@ -1,4 +1,6 @@
 import pandas as pd
+import boto3
+import json
 import glob_func
 import db_connect
 import rxgen_parser
@@ -34,6 +36,7 @@ def read_drugndc(mode, new_table):
     glob_func.df_to_redshift(df11, 'ndc11', mode, new_table, psql, cur, engine, s3f)
     df9 = df[['product_ndc', 'generic_name', 'brand_name', 'labeler_name']]
     df9 = rxgen_parse.rxgen_class(regex_df, df9, 'generic_name')
+    glob_func.df_to_redshift(df9, 'ndc9', mode, new_table, psql, cur, engine, s3f)
     print(glob_func.time_stamp()+' Finish Reading NDC and save in table ndcdata')
 
 if __name__ == "__main__":
