@@ -10,6 +10,13 @@ class db_connect:
         self.cur = None
         self.engine = None
         self.con = None
+        self.user = None
+        self.pswd = None
+        self.host = None
+        self.port = None
+        self.dbname = None
+        self.surl = None
+        self.s3fuse = None
         if redshift:
             # Connect to Redshift
             self.user = os.getenv('REDSHIFT_USER', 'default')
@@ -27,7 +34,6 @@ class db_connect:
             self.port = str(os.getenv('POSTGRESQL_PORT', 'default'))
             self.dbname = os.getenv('POSTGRESQL_DATABASE', 'default')
             self.surl = 'postgresql://'
-        print(self.host)
         self.engine = sa.create_engine(self.surl+self.user+':'+self.pswd+'@'+self.host+':'+self.port+'/'+self.dbname,echo=False)
         self.con = self.engine.connect()
         self.conn = self.engine.raw_connection()
