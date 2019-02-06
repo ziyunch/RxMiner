@@ -22,6 +22,7 @@ def read_medicaid(year, mode, new_table):
         chunksize = chunk_size)
     for chunk in chunks:
         chunk = chunk.dropna(subset=['tot_reimbursed'])
+        chunk['ndc9'] = chunk.ndc.str[:9]
         glob_func.df_to_redshift(chunk, table_name, mode, new_table, cur, engine, s3f)
         new_table =False
         print(glob_func.time_stamp()+' Medicaid data: reading in progress...')
