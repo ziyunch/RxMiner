@@ -10,6 +10,13 @@ class db_connect:
         self.cur = None
         self.engine = None
         self.con = None
+        self.user = None
+        self.pswd = None
+        self.host = None
+        self.port = None
+        self.dbname = None
+        self.surl = None
+        self.s3fuse = None
         if redshift:
             # Connect to Redshift
             self.user = os.getenv('REDSHIFT_USER', 'default')
