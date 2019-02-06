@@ -15,7 +15,7 @@ def convert_ndc_9(ndc):
         ndc = temp[0].zfill(5)+temp[1].zfill(4)
     return ndc
 
-def read_drugndc(mode):
+def read_drugndc(mode, new_table):
     s3 = boto3.resource('s3')
     content_object = s3.Object('rxminer', 'openfda/drug-ndc-0001-of-0001.json')
     file_content = content_object.get()['Body'].read().decode('utf-8')
@@ -44,10 +44,9 @@ if __name__ == "__main__":
     conn, cur = db_connection.raw_connect()
     s3f = db_connection.s3_fuse()
     s3_path = 's3n://rxminer/'
-    new_table = 0
     chunk_size = 200000
     url = 'https://druginfo.nlm.nih.gov/drugportal/jsp/drugportal/DrugNameGenericStems.jsp'
     regex_df = rxgen_parser.regex_file(url)
-    read_drugndc('append')
+    read_drugndc('append', True)
     db_connection.close_engine()
     db_connection.close_conn()

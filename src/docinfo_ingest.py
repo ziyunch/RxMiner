@@ -37,7 +37,7 @@ def read_npi(file_name, mode, new_table):
     for chunk in chunks:
         clean_npi(chunk)
         glob_func.df_to_redshift(chunk, table_name, mode, new_table, cur, engine, s3f)
-        new_table += 1
+        new_table = False
         print(glob_func.time_stamp()+' NPI data: reading in progress...')
     print(glob_func.time_stamp()+' Finish Reading NPI and save in table npidata')
 
@@ -50,6 +50,6 @@ if __name__ == "__main__":
     s3f = db_connection.s3_fuse()
     s3_path = 's3n://rxminer/'
     chunk_size = 200000
-    read_npi('npidata_pfile_20050523-20190113', 'append', 0)
+    read_npi('npidata_pfile_20050523-20190113', 'append', True)
     db_connection.close_engine()
     db_connection.close_conn()
