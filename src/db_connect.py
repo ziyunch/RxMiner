@@ -15,7 +15,7 @@ class db_connect:
             user = os.getenv('REDSHIFT_USER', 'default')
             pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
             host = os.getenv('REDSHIFT_HOST_IP', 'default')
-            port = os.getenv('REDSHIFT_PORT', 'default')
+            port = str(os.getenv('REDSHIFT_PORT', 'default'))
             dbname = os.getenv('REDSHIFT_DATABASE', 'default')
             surl = 'redshift+psycopg2://'
             s3fuse = s3fs.S3FileSystem(anon=False)
