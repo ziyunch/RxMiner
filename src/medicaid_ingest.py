@@ -37,7 +37,7 @@ if __name__ == "__main__":
     s3f = db_connection.s3_fuse()
     s3_path = 's3n://rxminer/'
     chunk_size = 200000
-    for year,new_table in {2013:True,2014:False,2015:False,2016:False}:
+    for year,new_table in {'2013':True,'2014':False,'2015':False,'2016':False}:
         read_medicaid(year, 'append', new_table)
     db_connection.close_engine()
     db_connection.close_conn()

@@ -27,7 +27,7 @@ if __name__ == "__main__":
     chunk_size = 200000
     url = 'https://druginfo.nlm.nih.gov/drugportal/jsp/drugportal/DrugNameGenericStems.jsp'
     regex_df = rxgen_parser.regex_file(url)
-    for year, new_table in {2013:True,2014:False,2015:False,2016:False}:
+    for year, new_table in {'2013':True,'2014':False,'2015':False,'2016':False}:
         read_medicare(year, 'append', new_table)
     db_connection.close_engine()
     db_connection.close_conn()
