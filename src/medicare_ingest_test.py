@@ -4,7 +4,7 @@ import db_connect
 import rxgen_parser
 
 def collect_gen(ds, ds1):
-    ds.append(ds1['generic_name'])
+    ds.append(ds1.generic_name)
     ds.drop_duplicates(inplace = True)
     return ds
 
@@ -15,7 +15,7 @@ def read_medicare(year, mode, new_table, gen_ds):
     for chunk in chunks:
         chunk["year"] = year
         gen_ds = collect_gen(gen_ds, chunk)
-        glob_func.df_to_redshift(chunk, table_name, mode, new_table, cur, engine, s3f)
+        #glob_func.df_to_redshift(chunk, table_name, mode, new_table, cur, engine, s3f)
         new_table = False
         print(glob_func.time_stamp()+' Medicare data: reading in progress...')
     print(glob_func.time_stamp()+' Finish Reading Medicare data and save in table '+table_name)
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     s3f = db_connection.s3_fuse()
     s3_path = 's3n://rxminer/'
     new_table = 0
-    chunk_size = 200000
+    chunk_size = 2000000
     url = 'https://druginfo.nlm.nih.gov/drugportal/jsp/drugportal/DrugNameGenericStems.jsp'
     regex_df = rxgen_parser.regex_file(url)
     gen_ds = pd.Series()
