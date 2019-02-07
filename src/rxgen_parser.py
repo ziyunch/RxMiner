@@ -72,7 +72,7 @@ def regex_file(url):
 def rxgen_class_old(regex_df, df, gen_colname):
     to_repl = regex_df.regex.values.tolist()
     vals = regex_df.definition.values.tolist()
-    df['rxclass'] = df[gen_colname].str.lower()
+    df['rxclass'] = df[gen_colname].str.lower().replace('/', ' ')
     df['rxclass'] = df['rxclass'].replace(to_repl, vals, regex=True)
     df.rxclass[~df.rxclass.isin(vals)] = 'Other'
     return df
