@@ -3,7 +3,7 @@ import glob_func
 import db_connect
 import rxgen_parser
 
-def read_medicare(year, mode, new_table):
+def read_medicare(year, mode, new_table, gen_ds):
     type_dir = 'pupd/medicare_pupd_'
     table_name = 'pupd'
     chunks = pd.read_csv(s3_path+type_dir+str(year)+'.csv', chunksize=chunk_size)
@@ -14,6 +14,7 @@ def read_medicare(year, mode, new_table):
         new_table = False
         print(glob_func.time_stamp()+' Medicare data: reading in progress...')
     print(glob_func.time_stamp()+' Finish Reading Medicare data and save in table '+table_name)
+    return gen_ds
 
 if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
