@@ -33,7 +33,7 @@ if __name__ == "__main__":
     chunk_size = 200000
     url = 'https://druginfo.nlm.nih.gov/drugportal/jsp/drugportal/DrugNameGenericStems.jsp'
     regex_df = rxgen_parser.regex_file(url)
-    gen_df = []
+    gen_df = pd.DataFrame()
     gen_df = read_medicare(2013, 'append', True, gen_df)
     for year in [2014,2015,2016]:
         gen_df = read_medicare(year, 'append', False, gen_df)
