@@ -13,7 +13,7 @@ def read_medicare(year, mode, new_table):
         glob_func.df_to_redshift(chunk, table_name, mode, new_table, cur, engine, s3f)
         new_table = False
         print(glob_func.time_stamp()+' Medicare data: reading in progress...')
-    print(glob_func.time_stamp()+' Finish Reading Medicare data and save in table '+psql_table)
+    print(glob_func.time_stamp()+' Finish Reading Medicare data and save in table '+table_name)
 
 if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
