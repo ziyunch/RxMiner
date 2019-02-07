@@ -81,7 +81,7 @@ def rxgen_class(regex_df, df, gen_colname):
     regexdict = regex_df.set_index('regex').to_dict()
     vals = regex_df.definition.values.tolist()
     df['rxclass'] = df[gen_colname].str.lower()
-    df['rxclass'] = df['rxclass'].replace(regexdict, regex=True)
+    df['rxclass'] = df[['rxclass']].replace({'rxclass':regexdict}, regex=True)
     df.rxclass[~df.rxclass.isin(vals)] = 'Other'
     return df
 
