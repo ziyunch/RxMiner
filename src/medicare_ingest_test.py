@@ -37,7 +37,7 @@ if __name__ == "__main__":
     gen_ds = read_medicare(2013, 'append', True, gen_ds)
     for year in [2014,2015,2016]:
         gen_ds = read_medicare(year, 'append', False, gen_ds)
-    gen_df = gen_ds.to_frame()
+    gen_df = gen_ds.to_frame('generic_name')
     gen_df = rxgen_parser.rxgen_class(regex_df, gen_df, 'generic_name')
     glob_func.df_to_redshift(gen_df, 'pupd_genclass', 'append', True, cur, engine, s3f)
     db_connection.close_engine()
