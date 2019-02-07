@@ -4,7 +4,7 @@ import db_connect
 import rxgen_parser
 
 def collect_gen(df, df1):
-    df.append(df1['generic_name'])
+    df.append([df1['generic_name']])
     df.drop_duplicates(keep = 'first', inplace = True)
     return df
 
