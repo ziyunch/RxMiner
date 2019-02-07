@@ -19,7 +19,7 @@ def read_medicare(year, mode, new_table, gen_ds):
         new_table = False
         print(glob_func.time_stamp()+' Medicare data: reading in progress...')
     print(glob_func.time_stamp()+' Finish Reading Medicare data and save in table '+table_name)
-    return gen_df
+    return gen_ds
 
 if __name__ == "__main__":
     # Disable `SettingWithCopyWarning`
