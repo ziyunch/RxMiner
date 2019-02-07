@@ -5,7 +5,7 @@ import rxgen_parser
 
 def collect_gen(df, df1):
     df.append(df1['generic_name'])
-    df.drop_duplicates(subset ='generic_name', keep = 'first', inplace = True)
+    df.drop_duplicates(keep = 'first', inplace = True)
     return df
 
 def read_medicare(year, mode, new_table, gen_df):
