@@ -8,7 +8,7 @@ df = df.select('name','products', 'atc-codes')
 # explode to get "long" format
 df = df.withColumn('product', F.explode(df.products.product))
 df = df.select('name', 'atc-codes', 'product.ndc-product-code')
-df = df.withColumn('exploded', F.explode(df.atc-codes.atc-code))
+df = df.withColumn('exploded', F.explode('df.atc-codes.atc-code'))
 # get the name and the name in separate columns
 df = df.withColumn('name', F.col('exploded').getItem(0))
 df = df.withColumn('value', F.col('exploded').getItem(1))
