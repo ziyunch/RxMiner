@@ -6,7 +6,7 @@ spark = SparkSession.builder.getOrCreate()
 df = spark.read.format('xml').options(rowTag='drug').load('s3n://rxminer/drugbank/drugbank.xml')
 df = df.select('name','products', 'atc-codes')
 df = df.withColumn('product', explode(df.products.product))
-df = df.select('name', 'atc-codes.atc-code.element._code', 'atc-codes.atc-code.element.level','product.ndc-product-code')
+df = df.select('name', 'atc-codes.atc-code.element','product.ndc-product-code')
 
 #df_rxevent = spark.read.csv('s3n://rxminer/SynPUFs/DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_*.csv', header=True)
 df.printSchema()
