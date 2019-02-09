@@ -1,6 +1,8 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 import pyspark.sql.functions as F
+from pyspark.sql.types import (
+    ArrayType, LongType, StringType, StructField, StructType)
 
 spark = SparkSession.builder.getOrCreate()
 df = spark.read.format('xml').options(rowTag='drug').load('s3n://rxminer/drugbank/drugbank.xml')
