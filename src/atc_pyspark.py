@@ -7,9 +7,9 @@ df = spark.read.format('xml').options(rowTag='drug').load('s3n://rxminer/drugban
 df = df.select('name','products', 'atc-codes')
 # explode to get "long" format
 df = df.withColumn('product', F.explode(df.products.product))
-str_schema = "atc_codes:struct<atc_code:array<struct<string,array<struct<string,string>>"
+str_schema = "atccodes:struct<atccode:array<struct<string,array<struct<string,string>>>>>"
 df = df.select('name', F.col('atc-codes').cast(str_schema), 'product.ndc-product-code')
-df = df.withColumn('exploded', F.explode(df.atc_codes.atc_code))
+df = df.withColumn('exploded', F.explode(df.atccodes.atccode))
 # get the name and the name in separate columns
 df = df.withColumn('name', F.col('exploded').getItem(0))
 df = df.withColumn('value', F.col('exploded').getItem(1))
