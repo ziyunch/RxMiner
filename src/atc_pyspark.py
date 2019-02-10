@@ -10,7 +10,7 @@ df = df.select('name','products', 'atc-codes')
 # explode to get "long" format
 df = df.withColumn('product', F.explode(df.products.product))
 df = df.withColumnRenamed("atc-codes", "atccodes")
-str_schema = "struct<atccode:array<struct<string,array<struct<string,string>>>>>"
+str_schema = "struct<atccode:array>"
 df.select(F.col('atccodes').cast(str_schema)).printSchema()
 df = df.withColumn('exploded', F.explode(df.atccodes.atccode))
 # get the name and the name in separate columns
