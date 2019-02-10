@@ -22,4 +22,4 @@ df = df.select('name', 'product.ndc-product-code', 'exploded')
 df.printSchema()
 df.show(10)
 
-df.toPandas().to_csv("sample_file.csv", header=True)
+df.to_csv("sample_file.csv")
