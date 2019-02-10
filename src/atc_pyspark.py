@@ -22,11 +22,4 @@ df = df.select('name', 'product.ndc-product-code', 'exploded')
 df.printSchema()
 df.show(10)
 
-save_location= 's3a://rxminer/drugbank/'
-file_location = save_location+'export.csv'
-
-df.repartition(1).write.csv(path=save_location, mode="append", header="true")
-
-file = dbutils.fs.ls(save_location)[-1].path
-dbutils.fs.cp(file, file_location)
-dbutils.fs.rm(save_location, recurse=True)
+df.toPandas().to_csv("sample_file.csv", header=True)
