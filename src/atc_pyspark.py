@@ -11,7 +11,7 @@ df = df.select('name','products', 'atc-codes')
 df = df.withColumn('product', F.explode(df.products.product))
 df = df.withColumnRenamed("atc-codes", "atccodes")
 df = df.withColumn('exploded', F.explode(df.atccodes['atc-code']))
-df = df.select('name', 'product.ndc-product-code', 'exploded.atc-code')
+df = df.select('name', 'product.ndc-product-code', 'exploded.atc-code._code]')
 # get the name and the name in separate columns
 #df = df.withColumn('name', F.col('exploded').getItem(0))
 #df = df.withColumn('value', F.col('exploded').getItem(1))
