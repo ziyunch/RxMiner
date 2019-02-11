@@ -10,17 +10,58 @@ def sum_by_state():
     cur.execute(sql_query)
     conn.commit()
 
-def merge_npi():
+def ndc_cleaned():
+    sql_query = """
+CREATE TABLE ndc as (
+    SELECT *,ROW_NUMBER() OVER (PARTITION BY product_ndc,brand_name ORDER BY product_ndc) AS rownumber
+    FROM ndc9
+);
+    """
+
+
+def merge_sdud():
     sql_query = """
         SELECT
-            pupd.npi,
+            sdud.state,
+            ndc.generic_name,
+            sdud.year,
+            sdud.num_prescriptions,
+            sdud.medicaid_reimbursed,
+            CASE
+                WHEN ndc.generic_name IS NULL THEN 0
+                ELSE 1
+            END AS validated
+        INTO
+            sdud_cleaned
+        FROM
+            sdud
+        LEFT JOIN
+            ndc
+        ON (sdud.ndc9 = ndc.product_ndc
+            AND UPPER(LEFT(sdud.drug_name,5)) = UPPER(LEFT(ndc.brand_name,5)))
+    """
+    cur.execute(sql_query)
+    conn.commit()
+
+def merge_pupd():
+    sql_query = """
+        SELECT
+            npidata.practice_state,
+            pupd.generic_name,
+            pupd.year,
             pupd.total_claim_count,
-            npidata.practice_state
+            pupd.total_day_supply,
+            pupd.total_drug_cost,
+            CASE
+                WHEN npidata.practice_state IS NULL THEN 0
+                ELSE 1
+            END AS validated
         INTO
             pupd_cleaned
         FROM
             pupd
-        LEFT JOIN npidata ON (npidata.npi = pupd.npi AND npidata.last_name = pupd.nppes_provider_last_org_name);
+        LEFT JOIN npidata
+        ON (npidata.npi = pupd.npi AND npidata.last_name = pupd.nppes_provider_last_org_name);
     """
     cur.execute(sql_query)
     conn.commit()

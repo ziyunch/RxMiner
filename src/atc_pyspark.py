@@ -22,5 +22,5 @@ df = df.select('name', 'product.ndc-product-code', 'exploded')
 df.printSchema()
 df.show(10)
 
-df.write.csv('drugbank.csv')
-#df.toPandas().to_csv("sample_file.csv", header=True)
+#df.write.csv('drugbank.csv')
+df.toPandas().to_csv("sample_file.csv", header=True)
