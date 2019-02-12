@@ -7,11 +7,12 @@ from pyspark.sql.types import (
 spark = SparkSession.builder.getOrCreate()
 df = spark.read.format('xml').options(rowTag='drug').load('s3n://rxminer/drugbank/drugbank.xml')
 df.createOrReplaceTempView("input_table")
+df.show(10)
 df1 = spark.sql("""
-SELECT atc-code AS atc_code
+SELECT atc-codes.atc-code AS atc_code
 FROM input_table
 """)
-df2.show(10)
+
 # df = df.select('name','products', 'atc-codes')
 # explode to get "long" format
 # df = df.withColumn('product', F.explode(df.products.product))
