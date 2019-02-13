@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="npm_modules/bootstrap/css/bootstrap.min.css">
+
+  <!-- Custom fonts for this template -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="npm_modules/jquery/jquery-3.3.1.min.js"></script>
+  <script src="npm_modules/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <title>RxMiner</title>
+  <style>
+  .container-fluid {
+    padding-top: 70px;
+    padding-bottom: 70px;
+  }
+  body {
+    font-family: 'Muli', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    padding-top: 54px;
+    color: #868e96;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Saira Extra Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #343a40;
+  }
+  h3 {
+    font-size: 2rem;
+    color: #BD5D38;
+  }
+  .subheading {
+    text-transform: uppercase;
+    font-weight: 500;
+    font-family: 'Saira Extra Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    font-size: 1.2rem;
+  }
+  .social-icons a {
+    display: inline-block;
+    height: 3.5rem;
+    width: 3.5rem;
+    background-color: #495057;
+    color: #fff !important;
+    border-radius: 100%;
+    text-align: center;
+    font-size: 1.5rem;
+    line-height: 3.5rem;
+    margin-right: 1rem;
+  }
+  .social-icons a:last-child {
+    margin-right: 0;
+  }
+  .social-icons a:hover {
+    background-color: #BD5D38;
+  }
+  .dev-icons {
+    font-size: 3rem;
+  }
+  .bg-primary {
+    background-color: #BD5D38 !important;
+  }
+  .text-base {
+    color: #868e96 !important;
+  }
+  .text-primary {
+    color: #BD5D38 !important;
+  }
+  a {
+    color: #BD5D38;
+  }
+  a:hover, a:focus, a:active {
+    color: #824027;
+  }
+</style>
+</head>
+
+<!-- The scrollable area -->
+<body data-spy="scroll" data-target=".navbar" data-offset="0">
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+  <a class="navbar-brand" mb-0 h1 href="#">RxMiner</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <span class="navbar-text">
+    A tool to clean and analyze national drug dataset
+  </span>
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav text-uppercase ml-auto">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dashboards</a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="#dashboard1">State usage map</a>
+          <a class="dropdown-item" href="#dashboard2">two</a>
+        </div>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#slides">Slides</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#about">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#experience">Experience</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#education">Education</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#skills">Skills</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Dashboard Grid -->
+<section class="bg-white p-lg-5 align-items-center" id="dashboard1">
+  <div class="container-fluid">
+    <h3><a href="#dash1" data-toggle="collapse">Drug usage over states</a></h3>
+    <div id="dash1" class="collapse">
+    State map
+    </div>
+    <div class='tableauPlaceholder' id='viz1550011182853' style='position: relative'>
+      <noscript>
+        <a href='https:&#47;&#47;rxminer.net'>
+          <img alt=' ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;rx&#47;rxminer1&#47;Dashboard1&#47;1_rss.png' style='border: none' />
+        </a>
+      </noscript>
+      <object class='tableauViz'  style='display:none;'>
+        <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+        <param name='embed_code_version' value='3' />
+        <param name='site_root' value='' />
+        <param name='name' value='rxminer1&#47;Dashboard1' />
+        <param name='tabs' value='no' />
+        <param name='toolbar' value='yes' />
+        <param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;rx&#47;rxminer1&#47;Dashboard1&#47;1.png' />
+        <param name='animate_transition' value='yes' />
+        <param name='display_static_image' value='yes' />
+        <param name='display_spinner' value='yes' />
+        <param name='display_overlay' value='yes' />
+        <param name='display_count' value='yes' />
+      </object>
+    </div>
+    <script type='text/javascript'>
+      var divElement = document.getElementById('viz1550011182853');
+      var vizElement = divElement.getElementsByTagName('object')[0];
+      vizElement.style.width='1366px';vizElement.style.height='795px';
+      var scriptElement = document.createElement('script');
+      scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+      vizElement.parentNode.insertBefore(scriptElement, vizElement);
+    </script>
+  </div>
+</section>
+
+<!-- Slides -->
+<section id="slides" class="bg-light p-lg-5 align-items-center">
+  <div class="container-fluid">
+    <h3>Slides</h3>
+    <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vSzgbpJPD8Qhzy19TEs-yPiN166IW3mNnd8_sKT7zRIB4VM7DLRSk0q3j7S_sbXAFOAXK1LYU-_p0kx/embed?start=false&loop=false&delayms=3000" frameborder="0" width="960" height="569" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+  </div>
+</section>
+
+<!-- Resume -->
+<div class="container-fluid p-0">
+
+  <section class="bg-white p-lg-5 align-items-center" id="about">
+    <div class="w-100">
+      <h3 class="mb-0">
+        <span class="text-base">Runhan</span> Yu
+      </h3>
+      <div class="subheading mb-5">(781) 786-1586 ·
+        <a href="mailto:runhanyu90@gmail.com">runhanyu90@gmail.com</a>
+      </div>
+      <p class="lead mb-5">I have a background in chemistry and finance. While working on my PhD at Brandeis, I focused on enzyme mechanisms and developed a pipeline to extract messy gene sequences from a 100 GB database. My focus at Insight has been building on these data engineering fundamentals and applying them towards problems like tackling massive, messy datasets and combining data from multiple sources. </p>
+      <div class="social-icons">
+        <a href="https://www.linkedin.com/in/runhanyu/">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+        <a href="https://github.com/ziyunch/RxMiner">
+          <i class="fab fa-github"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <hr class="m-0">
+
+  <section class="bg-light p-lg-5 justify-content-center" id="experience">
+    <h3 class="mb-5">Experience</h3>
+    <div class="d-flex justify-content-between mb-5 ml-3 mr-3">
+      <div>
+        <h4 class="mb-0">Data Engineering Fellow</h4>
+        <div class="subheading mb-3">Insight Data Science</div>
+        <p>• Developed a pipeline to extract and integrate prescription data from
+           multiple providers to enable nation- wide queries on prescription drug
+            usage and visualized in Tableau.</br>
+          • Validated and combined datasets from five disparate data sources into
+           a queryable databases in Redshift.</br>
+          • Wrote a function to speed up exporting dataframe to Redshift/PostgreSQL
+           by 20-100 times.
+         </p>
+      </div>
+      <div>
+        <span class="text-primary">Jan. 2019 - Present</span>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between mb-5 ml-3 mr-3">
+      <div>
+        <h4 class="mb-0">Graduate Research Fellow</h4>
+        <div class="subheading mb-3">Brandeis University</div>
+        <p>• Developed a python-based pipeline that extracted 100,000 gene sequences
+           encoding protein of interest from 200 million gene sequences in the 114
+            GB GenBank database.</br>
+          • Estimated maximum-likelihood phylogenies to build protein evolutionary
+           tree using PhyML.</br>
+          • Collaborated with three research groups outside of Brandeis University
+           to elucidate enzyme mechanistic models and simulate molecular dynamic motions.
+         </p>
+      </div>
+      <div>
+        <span class="text-primary">Oct. 2012 – Dec. 2018</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="m-0">
+
+  <section class="bg-white p-lg-5 justify-content-center" id="education">
+    <h3 class="mb-5">Education</h3>
+    <div class="d-flex justify-content-between mb-5 ml-3 mr-3">
+      <div>
+        <h4 class="mb-0">Brandeis University</h4>
+        <div class="subheading mb-3">Ph.D.</div>
+        <div>Chemistry</div>
+        <div>with specialization in Quantitative Biology</div>
+      </div>
+      <div>
+        <span class="text-primary">Dec. 2018</span>
+      </div>
+    </div>
+    <div class="d-flex justify-content-between mb-5 ml-3 mr-3">
+      <div>
+        <h4 class="mb-0">Nankai University</h4>
+        <div class="subheading mb-3">B.S</div>
+        <div>Materials Chemistry</div>
+        <div>Finance</div>
+      </div>
+      <div>
+        <span class="text-primary">Jun. 2012</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="m-0">
+
+  <section class="bg-light p-lg-5 justify-content-center" id="skills">
+    <h3 class="mb-5">Skills</h3>
+    <div class="subheading mb-3 mt-5">Programming Languages</div>
+      Python, R, SQL (advanced) Matlab, Java (intermediate)
+    <div class="subheading mb-3 mt-5">Data Engineering</div>
+      Redshift, PostgreSQL, AWS S3, HDFS, MySQL, AWS EC2, Apache Spark, Tableau
+    <div class="subheading mb-3 mt-5">Others</div>
+      Emacs, Vim, Bash, Linux, Git, HPCC
+    <div class="subheading mb-3 mt-5">Front End Tools</div>
+    <ul class="list-inline dev-icons">
+      <li class="list-inline-item">
+        <i class="fab fa-sass"></i>
+      </li>
+      <li class="list-inline-item">
+        <i class="fab fa-less"></i>
+      </li>
+      <li class="list-inline-item">
+        <i class="fab fa-wordpress"></i>
+      </li>
+    </ul>
+  </section>
+
+</div>
+
+
+</body>
+</html>
