@@ -1,6 +1,6 @@
 import pandas as pd
-import glob_func
-import db_connect
+from mylib import glob_func
+from mylib import db_connect
 
 def clean_npi(df):
     """
@@ -18,19 +18,17 @@ def clean_npi(df):
 def read_npi(file_name, mode, new_table):
     type_dir = 'npi/'
     table_name = 'npidata'
-    cols_to_keep = [0,1,4,5,6,31,32,33]
-    column_names = [
-        'npi', 'entity_type_code',
-        'organize_name',
-        'last_name', 'first_name',
-        'practice_state', 'practice_postal', 'practice_country'
-        ]
+    cols_to_keep = {
+        0:'npi', 1:'entity_type_code',4:'organize_name',
+        5:'last_name', 6:'first_name',
+        31:'practice_state', 32:'practice_postal', 33:'practice_country'
+        }
     d_type = {'practice_postal': str}
     # Read NPI file in chunk to reduce memory usage
     chunks = pd.read_csv(
         s3_path+type_dir+file_name+'.csv',
-        usecols = cols_to_keep,
-        names = column_names,
+        usecols = cols_to_keep.keys(),
+        names = cols_to_keep.values(),
         dtype = d_type,
         chunksize = chunk_size,
         skiprows = 1)

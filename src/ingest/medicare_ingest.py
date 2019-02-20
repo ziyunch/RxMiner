@@ -1,7 +1,7 @@
 import pandas as pd
-import glob_func
-import db_connect
-import rxgen_parser
+from mylib import glob_func
+from mylib import db_connect
+from mylib import rxgen_parser
 
 def read_medicare(year, mode, new_table):
     type_dir = 'pupd/medicare_pupd_'

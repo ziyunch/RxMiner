@@ -11,6 +11,24 @@ import json
 import psycopg2
 import sqlalchemy as sa # Package for accessing SQL databases via Python
 import StringIO
+from aenum import Enum
+
+class TargetDB(Enum):
+    psql = 1
+    redshift = 2
+
+class OperateMode(Enum):
+    replace = 1
+    append = 2
+
+class ODBCMode(Enum):
+    psycopg = 1
+    sqlalchemy = 2
+
+def time_stamp():
+    eastern = pytz.timezone('US/Eastern')
+    ts = datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")
+    return ts
 
 def pd_to_postgres(df, table_name, mode):
     """
@@ -26,7 +44,7 @@ def cleanColumns(columns):
         cols.append(col)
     return cols
 
-def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
+def df_to_sql(df, table_name, mode, new_table, target_database, cur, engine):
     """
     Save DataFrame to .csv, read csv as sql table in memory and copy the table
      directly in batch to PostgreSQL or Redshift.
@@ -35,11 +53,11 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
     df[:0].to_sql('temp', engine, if_exists = "replace", index=False)
     df.columns = cleanColumns(df.columns)
     # replace mode
-    if mode == 'replace':
+    if mode == OperateMode.replace.name:
         cur.execute("DROP TABLE " + table_name)
         cur.connection.commit()
     # Prepare data to temp
-    if psql == 'psql':
+    if target_database == TargetDB.psql.name:
         data = StringIO.StringIO()
         df.to_csv(data, header=False, index=False)
         data.seek(0)
@@ -93,18 +111,16 @@ def df_to_sql(df, table_name, mode, new_table, psql, cur, engine):
 def read_medicaid(year, mode):
     type_dir = 'sdud/medicaid_sdud_'
     table_name = 'sdudtest'
-    cols_to_keep = [1,5,7,9,10,11,12,13,19]
-    column_names = [
-        'state', 'year', 'drug_name',
-        'unit_reimbursed', 'num_prescriptions',
-        'tot_reimbursed', 'medicaid_reimbursed',
-        'nonmedicaid_reimbursed', 'ndc'
-        ]
+    cols_to_keep = {
+        1:'state', 5:'year',7:'drug_name',
+        9:'unit_reimbursed',10:'num_prescriptions',11:'tot_reimbursed',
+        12:'medicaid_reimbursed',13:'nonmedicaid_reimbursed',19:'ndc'
+        }
     d_type = {'ndc': str}
     chunks = pd.read_csv(
         s3_path+type_dir+str(year)+'.csv',
-        usecols = cols_to_keep,
-        names = column_names,
+        usecols = cols_to_keep.keys(),
+        names = cols_to_keep.values(),
         dtype = d_type,
         skiprows = 1,
         chunksize = chunk_size)
@@ -114,15 +130,15 @@ def read_medicaid(year, mode):
         if pd2db == "yes":
             pd_to_postgres(chunk, table_name, mode)
         else:
-            df_to_sql(chunk, table_name, mode, new_table, psql, cur, engine)
+            df_to_sql(chunk, table_name, mode, new_table, target_database, cur, engine)
         new_table += 1
-        print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Medicaid data: reading in progress...')
-    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading Medicaid data and save in table '+table_name)
+        print(time_stamp()+' Medicaid data: reading in progress...')
+    print(time_stamp()+' Finish Reading Medicaid data and save in table '+table_name)
 
 def convert_ndc(ndc):
     temp = ndc.split('-')
     if len(temp) == 3:
-        ndc = temp[0].zfill(5)+temp[1].zfill(4)+temp[2].zfill(2)
+        ndc = temp[0].zfill(5) + temp[1].zfill(4) + temp[2].zfill(2)
     return ndc
 
 def read_drugndc(mode):
@@ -145,8 +161,8 @@ def read_drugndc(mode):
     if pd2db == "yes":
         pd_to_postgres(df, table_name, mode)
     else:
-        df_to_sql(df, table_name, mode, new_table, psql, cur, engine)
-    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Finish Reading NDC and save in table ndcdata')
+        df_to_sql(df, table_name, mode, new_table, target_database, cur, engine)
+    print(time_stamp()+' Finish Reading NDC and save in table ndcdata')
 
 def merge_table():
     query = """
@@ -179,12 +195,12 @@ if __name__ == "__main__":
     eastern = pytz.timezone('US/Eastern')
     new_table = 0
     chunk_size = int(sys.argv[1])
-    psql = sys.argv[2]
+    target_database = sys.argv[2]
     psyc = sys.argv[3]
     sraw = sys.argv[4]
     pd2db = sys.argv[5]
-    if psql == "psql":
-        print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connect to PostgreSQL on AWS RDS')
+    if target_database == TargetDB.psql.name:
+        print(time_stamp()+' Connect to PostgreSQL on AWS RDS')
         user = os.getenv('POSTGRESQL_USER', 'default')
         pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
         host = 'psql-test.csjcz7lmua3t.us-east-1.rds.amazonaws.com'
@@ -192,7 +208,7 @@ if __name__ == "__main__":
         dbname = 'postgres'
         surl = 'postgresql://'
     else:
-        print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connect to AWS Redshift')
+        print(time_stamp()+' Connect to AWS Redshift')
         user = os.getenv('REDSHIFT_USER', 'default')
         pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
         host = 'redshift-test.cgcoq5ionbrp.us-east-1.redshift.amazonaws.com'
@@ -200,7 +216,7 @@ if __name__ == "__main__":
         dbname = 'rxtest'
         surl = 'redshift+psycopg2://'
         s3 = s3fs.S3FileSystem(anon=False)
-    if psyc == "psycopg2":
+    if psyc == ODBCMode.psycopg.name:
         print("Using Psycopg2")
         conn = psycopg2.connect(dbname=dbname, user=user, host=host, port=port, password=pswd)
     else:
@@ -211,16 +227,16 @@ if __name__ == "__main__":
             con = engine.connect()
             conn = con.connection
     cur = conn.cursor()
-    print(datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")+' Connected')
+    print(time_stamp()+' Connected')
     s3_path = 's3n://rxminer/'
     start0 = time.time()
     start = time.time()
-    if (psyc == "sqlalchemy" and sraw == "no") :
+    if (psyc == ODBCMode.sqlalchemy.name and sraw == "no") :
         read_medicaid(2016, 'append')
     end = time.time()
     print(end - start)
     start = time.time()
-    if (psyc == "sqlalchemy" and sraw == "no"):
+    if (psyc == ODBCMode.sqlalchemy.name and sraw == "no"):
         read_drugndc('append')
     end = time.time()
     print(end - start)
@@ -232,4 +248,4 @@ if __name__ == "__main__":
     print(end - start0)
     cur.close()
     conn.close()
-    if (psyc == "sqlalchemy" and sraw == "no") : con.close()
+    if (psyc == ODBCMode.sqlalchemy.name and sraw == "no") : con.close()
