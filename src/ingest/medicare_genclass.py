@@ -1,7 +1,7 @@
 import pandas as pd
-import glob_func
-import db_connect
-import rxgen_parser
+from mylib import glob_func
+from mylib import db_connect
+from mylib import rxgen_parser
 
 def collect_gen(df, df1):
     df = df.append(df1.generic_name)
@@ -15,7 +15,6 @@ def read_medicare(year, mode, new_table, gen_df):
     for chunk in chunks:
         chunk["year"] = year
         gen_df = collect_gen(gen_df, chunk)
-        #glob_func.df_to_redshift(chunk, table_name, mode, new_table, cur, engine, s3f)
         new_table = False
         print(glob_func.time_stamp()+' Medicare data: reading in progress...')
     print(glob_func.time_stamp()+' Finish Reading Medicare data and save in table '+table_name)

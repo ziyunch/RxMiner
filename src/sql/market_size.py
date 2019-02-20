@@ -3,6 +3,7 @@ import psycopg2
 
 def union_table():
     sql_query = """
+        DROP TABLE IF EXISTS rxsum;
         CREATE TABLE rxsum AS
             (SELECT * FROM sdud_class
             UNION
@@ -27,6 +28,7 @@ def add_healthcare():
 
 def sdud_class():
     sql_query = """
+        DROP TABLE IF EXISTS sdud_class;
         SELECT
             sdud_sum.state,
             sdud_sum.generic,
@@ -43,6 +45,7 @@ def sdud_class():
 
 def pupd_class():
     sql_query = """
+        DROP TABLE IF EXISTS pupd_class;
         SELECT
             pupd_sum.state,
             pupd_sum.generic,
@@ -59,6 +62,7 @@ def pupd_class():
 
 def pupd_sum():
     sql_query = """
+        DROP TABLE IF EXISTS pupd_sum;
         SELECT
             practice_state AS state,
             LOWER(generic_name) AS generic,
@@ -73,6 +77,7 @@ def pupd_sum():
 
 def sdud_sum():
     sql_query = """
+        DROP TABLE IF EXISTS sdud_sum;
         SELECT
             state,
             LOWER(generic_name) AS generic,
@@ -87,6 +92,7 @@ def sdud_sum():
 
 def merge_sdud():
     sql_query = """
+        DROP TABLE IF EXISTS sdud_cleaned;
         SELECT
             sdud.state,
             ndc.generic_name,
@@ -111,6 +117,7 @@ def merge_sdud():
 
 def merge_pupd():
     sql_query = """
+        DROP TABLE IF EXISTS pupd_cleaned;
         SELECT
             npidata.practice_state,
             pupd.generic_name,

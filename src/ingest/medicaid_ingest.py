@@ -1,22 +1,20 @@
 import pandas as pd
-import glob_func
-import db_connect
+from mylib import glob_func
+from mylib import db_connect
 
 def read_medicaid(year, mode, new_table):
     type_dir = 'sdud/medicaid_sdud_'
     table_name = 'sdud'
-    cols_to_keep = [1,5,7,9,10,11,12,13,19]
-    column_names = [
-        'state', 'year', 'drug_name',
-        'unit_reimbursed', 'num_prescriptions',
-        'tot_reimbursed', 'medicaid_reimbursed',
-        'nonmedicaid_reimbursed', 'ndc'
-        ]
+    cols_to_keep = {
+        1:'state', 5:'year',7:'drug_name',
+        9:'unit_reimbursed',10:'num_prescriptions',11:'tot_reimbursed',
+        12:'medicaid_reimbursed',13:'nonmedicaid_reimbursed',19:'ndc'
+        }
     d_type = {'ndc': str}
     chunks = pd.read_csv(
         s3_path+type_dir+str(year)+'.csv',
-        usecols = cols_to_keep,
-        names = column_names,
+        usecols = cols_to_keep.keys(),
+        names = cols_to_keep.values(),
         dtype = d_type,
         skiprows = 1,
         chunksize = chunk_size)

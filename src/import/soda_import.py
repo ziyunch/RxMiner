@@ -15,7 +15,6 @@ def import_medicare():
     for year,end_point in pupd_dict.items():
         file_name = 'pupd/medicare-pupd-'+year+'.csv'
         client_path = 'data.cms.gov'
-        # Might time out
         import_soda(client_path, end_point, file_name)
 
 def import_medicaid():
@@ -23,7 +22,6 @@ def import_medicaid():
     for year,end_point in pupd_dict.items():
         file_name = 'susd/medicaid-susd-'+year+'.csv'
         client_path = 'data.medicaid.gov'
-        # Might time out
         import_soda(client_path, end_point, file_name)
 
 def upload_s3():
@@ -32,7 +30,6 @@ def upload_s3():
     aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', 'default')
     conn = boto.connect_s3(aws_access_key, aws_secret_access_key)
     bucket_name = "rxminer"
-    # bucket = conn.create_bucket(bucket_name)
     bucket = conn.get_bucket(bucket_name)
     object_key = "rx_data/"
     s3 = boto3.client('s3')

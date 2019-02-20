@@ -2,19 +2,19 @@ import pandas as pd
 import boto3
 import json
 import glob_func
-import db_connect
-import rxgen_parser
+from mylib import db_connect
+from mylib import rxgen_parser
 
 def convert_ndc_11(ndc):
     temp = ndc.split('-')
     if len(temp) == 3:
-        ndc = temp[0].zfill(5)+temp[1].zfill(4)+temp[2].zfill(2)
+        ndc = temp[0].zfill(5) + temp[1].zfill(4) + temp[2].zfill(2)
     return ndc
 
 def convert_ndc_9(ndc):
     temp = ndc.split('-')
     if len(temp) == 2:
-        ndc = temp[0].zfill(5)+temp[1].zfill(4)
+        ndc = temp[0].zfill(5) + temp[1].zfill(4)
     return ndc
 
 def read_drugndc(mode, new_table):
