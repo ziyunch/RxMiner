@@ -1,0 +1,14 @@
+# General
+.DS_Store
+
+# Thumbnails
+._*
+
+/legacy/
+/test/
+/resources/
+
+*.profile
+*.out
+
+sparkup
