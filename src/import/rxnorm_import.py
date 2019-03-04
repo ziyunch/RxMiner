@@ -6,6 +6,9 @@ from boto.s3.key import Key
 import requests
 
 def rxnorm_crawler():
+    """
+    Crawl RxNorm weekly updates from NIH's webpage and store them in S3 bucket.
+    """
     # Target webpage
     weburls=[
         'https://www.nlm.nih.gov/research/umls/rxnorm/docs/rxnormfiles.html',

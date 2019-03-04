@@ -1,10 +1,11 @@
 import pandas as pd
 from mylib import glob_func
 from mylib import db_connect
+from mylib import us_state_abbr
 
 def clean_npi(df):
     """
-    Clean up NPI table
+    Clean up NPI dataframe
     """
     # Drop NPI records with no providers' information
     df = df.dropna(subset=['entity_type_code'])
@@ -13,9 +14,16 @@ def clean_npi(df):
     # Assign state and postal code of foreign country with XX and 00000
     df.loc[df.practice_country != 'US', 'practice_state'] = "XX"
     df.loc[df.practice_country != 'US', 'practice_postal'] = "00000"
+    df.practice_state = df.practice_state.apply(us_state_abbr.state_abbr)
     return(df)
 
 def read_npi(file_name, mode, new_table):
+    """
+    Read doctors' datasets by chunks
+    file_name: the file to read
+    mode: append/replace to the table in database
+    new_table: First chunk or not
+    """
     type_dir = 'npi/'
     table_name = 'npidata'
     cols_to_keep = {

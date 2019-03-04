@@ -4,11 +4,17 @@ from mylib import db_connect
 from mylib import rxgen_parser
 
 def collect_gen(df, df1):
+    """
+    Collect unique generic names
+    """
     df = df.append(df1.generic_name)
     df.drop_duplicates(inplace = True)
     return df
 
 def read_medicare(year, mode, new_table, gen_df):
+    """
+    Read through medicare's datasets by chunks
+    """
     type_dir = 'pupd/medicare_pupd_'
     table_name = 'pupd'
     chunks = pd.read_csv(s3_path+type_dir+str(year)+'.csv', chunksize=chunk_size)

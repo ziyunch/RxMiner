@@ -1,4 +1,7 @@
 def state_abbr(str):
+    """
+    Convert states to their abbreviations
+    """
     us_state_abbr = {
         'Alabama': 'AL',
         'Alaska': 'AK',
@@ -52,6 +55,6 @@ def state_abbr(str):
         'Wyoming': 'WY',
     }
     if str.title() in us_state_abbr.keys():
-        return us_state_abbr[str]
+        return us_state_abbr[str.title()]
     else:
         return str

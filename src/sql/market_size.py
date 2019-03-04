@@ -140,14 +140,14 @@ def merge_pupd():
     conn.commit()
 
 if __name__ == "__main__":
-    user = os.getenv('POSTGRESQL_USER', 'default')
-    pswd = os.getenv('POSTGRESQL_PASSWORD', 'default')
-    host = os.getenv('POSTGRESQL_HOST_IP', 'default')
-    port = os.getenv('POSTGRESQL_PORT', 'default')
-    dbname = 'postgres'
-    conn = psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
+    user = os.getenv('REDSHIFT_USER', 'default')
+    pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
+    host = os.getenv('REDSHIFT_HOST_IP', 'default')
+    port = os.getenv('REDSHIFT_PORT', 'default')
+    dbname = os.getenv('REDSHIFT_DATABASE', 'default')
+    conn = redshift+psycopg2.connect(dbname=dbname, user=user, host=host, password=pswd)
     cur = conn.cursor()
-    print("PostgreSQL connected")
+    print("Redshift connected")
     merge_pupd()
     pupd_sum()
     pupd_class()

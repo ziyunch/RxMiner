@@ -4,6 +4,12 @@ from mylib import db_connect
 from mylib import rxgen_parser
 
 def read_medicare(year, mode, new_table):
+    """
+    Read and clean Medicare's datasets by chunks
+    year: the year to be read
+    mode: append/replace to the table in database
+    new_table: First chunk or not
+    """
     type_dir = 'pupd/medicare_pupd_'
     table_name = 'pupd'
     chunks = pd.read_csv(s3_path+type_dir+str(year)+'.csv', chunksize=chunk_size)

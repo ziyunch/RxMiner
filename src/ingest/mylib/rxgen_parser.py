@@ -6,6 +6,9 @@ import requests
 from bs4 import BeautifulSoup
 
 def get_stem_table(url):
+    """
+    Scrap the stem list of generic names from webpage
+    """
     lists = []
     html = requests.get(url)
     soup = BeautifulSoup(html.content, "lxml")
@@ -22,6 +25,9 @@ def get_stem_table(url):
     return df
 
 def clean_stem_table(df):
+    """
+    Clean the stem list, remove duplicate infos and those in a subgroups.
+    """
     df.drop(['examples'], axis=1, inplace=True)
     # Further remove stem names in a subgroup
     df = df[df['definition'].str.contains('\\(see.*\\)')==False]
@@ -39,6 +45,9 @@ def clean_stem_table(df):
     return df1
 
 def add_opioid(df1):
+    """
+    Add Opioid drugs which does not follow stem rules
+    """
     opioidlist = [
         '-fentanyl', '-orphine', '-meperidine', '-isonipecaine',
         '-pethidine', '-orphone', '-codone', '-adone', '-tapentadol',
@@ -49,6 +58,9 @@ def add_opioid(df1):
     return df
 
 def regex_pattern(stem_str):
+    """
+    Create regex patterns from stem words
+    """
     str_list = stem_str.split('-')
     # add word boundary
     if len(str_list) == 2:
@@ -61,6 +73,9 @@ def regex_pattern(stem_str):
     return pat_str
 
 def regex_file(url):
+    """
+    Prepare the dataframe containing regex patterns and drug classification
+    """
     df = get_stem_table(url)
     df = clean_stem_table(df)
     df.stem = df.stem.str.replace(' ','')
@@ -70,6 +85,9 @@ def regex_file(url):
     return df
 
 def rxgen_class_old(regex_df, df, gen_colname):
+    """
+    Alternative way to prepare the dataframe
+    """
     to_repl = regex_df.regex.values.tolist()
     vals = regex_df.definition.values.tolist()
     df['rxclass'] = df[gen_colname].str.lower().replace('/', ' ')
@@ -78,6 +96,9 @@ def rxgen_class_old(regex_df, df, gen_colname):
     return df
 
 def rxgen_class(regex_df, df, gen_colname):
+    """
+    Classify the drugs by regex patterns
+    """
     regexdict = regex_df.set_index('regex').to_dict()['definition']
     vals = regex_df.definition.values.tolist()
     df['rxclass'] = df[gen_colname].str.lower()

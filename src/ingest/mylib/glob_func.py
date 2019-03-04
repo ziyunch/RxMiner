@@ -8,11 +8,17 @@ import datetime
 import pytz
 
 def time_stamp():
+    """
+    Time stamp in Eastern time zone
+    """
     eastern = pytz.timezone('US/Eastern')
     ts = datetime.datetime.now(eastern).strftime("%Y-%m-%dT%H:%M:%S.%f")
     return ts
 
 def clean_columns(columns):
+    """
+    Replace space by underscore for column names
+    """
     cols = []
     for col in columns:
         col = col.replace(' ', '_')

@@ -6,18 +6,29 @@ from mylib import db_connect
 from mylib import rxgen_parser
 
 def convert_ndc_11(ndc):
+    """
+    Standardlize NDC code to 11 digits
+    """
     temp = ndc.split('-')
     if len(temp) == 3:
         ndc = temp[0].zfill(5) + temp[1].zfill(4) + temp[2].zfill(2)
     return ndc
 
 def convert_ndc_9(ndc):
+    """
+    Standardlize NDC code to 9 digits
+    """
     temp = ndc.split('-')
     if len(temp) == 2:
         ndc = temp[0].zfill(5) + temp[1].zfill(4)
     return ndc
 
 def read_drugndc(mode, new_table):
+    """
+    Read and clean FDA's ndc datasets
+    mode: append/replace to the table in database
+    new_table: First chunk or not
+    """
     s3 = boto3.resource('s3')
     content_object = s3.Object('rxminer', 'openfda/drug-ndc-0001-of-0001.json')
     file_content = content_object.get()['Body'].read().decode('utf-8')

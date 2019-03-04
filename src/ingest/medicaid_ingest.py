@@ -1,8 +1,15 @@
 import pandas as pd
 from mylib import glob_func
 from mylib import db_connect
+from mylib import us_state_abbr
 
 def read_medicaid(year, mode, new_table):
+    """
+    Read and clean Medicaid's datasets by chunks
+    year: the year to be read
+    mode: append/replace to the table in database
+    new_table: First chunk or not
+    """
     type_dir = 'sdud/medicaid_sdud_'
     table_name = 'sdud'
     cols_to_keep = {
@@ -21,6 +28,7 @@ def read_medicaid(year, mode, new_table):
     for chunk in chunks:
         chunk = chunk.dropna(subset=['tot_reimbursed'])
         chunk['ndc9'] = chunk.ndc.str[:9]
+        chunk.state = chunk.state.apply(us_state_abbr.state_abbr)
         glob_func.df_to_redshift(chunk, table_name, mode, new_table, cur, engine, s3f)
         new_table = False
         print(glob_func.time_stamp()+' Medicaid data: reading in progress...')
