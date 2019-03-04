@@ -19,10 +19,10 @@ I collected datasets from multiple sources and stored them in Amazon S3. Then I 
 Raw data were collected from multiple sources using three methods and stored in a S3 bucket.
 
 1. Web crawler
-`import/rxnorm_import.py`
+- `import/rxnorm_import.py`
 I used regex pattern `<a\s*href=[\'|"](.*?/kss/rxnorm/RxNorm_full_\d+.zip)[\'|"]>` to find all RxNorm zip files and downloaded them into my S3 bucket.
 
-`ingest/mylib/rxgen_parser.py`
+- `ingest/mylib/rxgen_parser.py`
 I used `beautifulsoup4` to find all stem names except for those in a subgroup and converted the stem name into regex patterns and stored in a dictionary for future usage.
 
 2. API
@@ -37,9 +37,7 @@ I created and attached a policy to allow `getObject` request on `arn:aws:s3:::do
 I ingested healthcare datasets from Medicaid and read them chunk by chunk. National Drug Codes (NDC) were standardized while processing. The data table was staged in Redshift as `sdud`.
 
 - `ingest/medicare_ingest.py`
-I ingested healthcare datasets from Medicare and read them chunk by chunk. The data table was staged in Redshift as `pupd`.
-
-I use a seperate script to parse through Medicare datasets and collect unique generic names and classify the drugs by regex patterns. This table was staged in Redshift as `pupd_genclass`.
+I ingested healthcare datasets from Medicare and read them chunk by chunk. The data table was staged in Redshift as `pupd`. I use a seperate script to parse through Medicare datasets and collect unique generic names and classify the drugs by regex patterns. This table was staged in Redshift as `pupd_genclass`.
 
 - `ingest/docinfo_ingest.py`
 I ingested and cleaned National Providers Identification (NPI) datasets chunk by chunk. Postal code and practice state information were cleaned while processing. The data table was staged in Redshift as `npidata`.
