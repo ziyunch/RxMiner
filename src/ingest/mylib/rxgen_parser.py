@@ -5,6 +5,10 @@ import numpy as np
 import requests
 from bs4 import BeautifulSoup
 
+"""
+Find all stem names except for those in a subgroup and converted the stem name into regex patterns and stored in a dictionary for future usage.
+"""
+
 def get_stem_table(url):
     """
     Scrap the stem list of generic names from webpage

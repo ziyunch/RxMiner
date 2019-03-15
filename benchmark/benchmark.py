@@ -13,6 +13,10 @@ import sqlalchemy as sa # Package for accessing SQL databases via Python
 import StringIO
 from aenum import Enum
 
+"""
+Benchmark and comparison between different techniques
+"""
+
 class TargetDB(Enum):
     psql = 1
     redshift = 2

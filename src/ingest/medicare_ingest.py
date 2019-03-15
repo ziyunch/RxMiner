@@ -3,6 +3,10 @@ from mylib import glob_func
 from mylib import db_connect
 from mylib import rxgen_parser
 
+"""
+Ingest healthcare datasets from Medicare and read them chunk by chunk.
+"""
+
 def read_medicare(year, mode, new_table):
     """
     Read and clean Medicare's datasets by chunks
@@ -28,7 +32,8 @@ if __name__ == "__main__":
     engine, con = db_connection.engine_connect()
     conn, cur = db_connection.raw_connect()
     s3f = db_connection.s3_fuse()
-    s3_path = 's3n://rxminer/'
+    bucket_name = os.getenv('AWS_BUCKET_NAME', 'default')
+    s3_path = 's3n://'+bucket_name+'/'
     new_table = 0
     chunk_size = 200000
     url = 'https://druginfo.nlm.nih.gov/drugportal/jsp/drugportal/DrugNameGenericStems.jsp'

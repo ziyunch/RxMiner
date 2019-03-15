@@ -3,6 +3,10 @@ from mylib import glob_func
 from mylib import db_connect
 from mylib import us_state_abbr
 
+"""
+Ingest and clean FDA's drug database. NDC were standardized while processing. Classify drugs by each unique generic names.
+"""
+
 def clean_npi(df):
     """
     Clean up NPI dataframe
@@ -54,7 +58,8 @@ if __name__ == "__main__":
     engine, con = db_connection.engine_connect()
     conn, cur = db_connection.raw_connect()
     s3f = db_connection.s3_fuse()
-    s3_path = 's3n://rxminer/'
+    bucket_name = os.getenv('AWS_BUCKET_NAME', 'default')
+    s3_path = 's3n://'+bucket_name+'/'
     chunk_size = 200000
     read_npi('npidata_pfile_20050523-20190113', 'append', True)
     db_connection.close_engine()

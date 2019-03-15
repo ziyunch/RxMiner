@@ -5,6 +5,10 @@ import glob_func
 from mylib import db_connect
 from mylib import rxgen_parser
 
+"""
+Ingest and clean National Providers Identification (NPI) datasets chunk by chunk. Postal code and practice state information were cleaned while processing.
+"""
+
 def convert_ndc_11(ndc):
     """
     Standardlize NDC code to 11 digits
@@ -30,7 +34,7 @@ def read_drugndc(mode, new_table):
     new_table: First chunk or not
     """
     s3 = boto3.resource('s3')
-    content_object = s3.Object('rxminer', 'openfda/drug-ndc-0001-of-0001.json')
+    content_object = s3.Object(bucket_name, 'openfda/drug-ndc-0001-of-0001.json')
     file_content = content_object.get()['Body'].read().decode('utf-8')
     json_content = json.loads(file_content)
     # Flattern the deeply nested json files
@@ -60,7 +64,8 @@ if __name__ == "__main__":
     engine, con = db_connection.engine_connect()
     conn, cur = db_connection.raw_connect()
     s3f = db_connection.s3_fuse()
-    s3_path = 's3n://rxminer/'
+    bucket_name = os.getenv('AWS_BUCKET_NAME', 'default')
+    s3_path = 's3n://'+bucket_name+'/'
     chunk_size = 200000
     url = 'https://druginfo.nlm.nih.gov/drugportal/jsp/drugportal/DrugNameGenericStems.jsp'
     regex_df = rxgen_parser.regex_file(url)
