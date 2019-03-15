@@ -3,11 +3,11 @@ This benchmark file is to test the efficiency of each function/method.
 
 `python3 benchmark.py chunk_size target_database odbc_connector connect_type to_db_type`
 
-`chunk_size`: read data by chunk of `chunk_size`
-`target_database`: `psql` PostgreSQL, `redshift` Redshift
-`odbc_connector`: `psycopg2` or `sqlalchemy`
-`connect_type`: `engine.raw_connection()` or `engine.connect().connection`
-`to_db_type`: use built-in `df.to_sql` or my own `df_to_sql` function to save data into SQL database.
+- `chunk_size`: read data by chunk of `chunk_size`
+- `target_database`: `psql` PostgreSQL, `redshift` Redshift
+- `odbc_connector`: `psycopg2` or `sqlalchemy`
+- `connect_type`: `engine.raw_connection()` or `engine.connect().connection`
+- `to_db_type`: use built-in `df.to_sql` or my own `df_to_sql` function to save data into SQL database.
 
 Sample input would be like:
 
