@@ -15,7 +15,7 @@ Sample input would be like:
 nohup python3 -u -m cProfile -o benchmark.out benchmark.py 1000000 psql sqlalchemy no yes &
 ```
 
-# Some take-home
+# Notes
 1. chunk_size 200k would be better than 1m,faster;
 2. `pd.to_sql` save to sql line by line, my function to read sql in memory is 100x faster than this;
 3. `psycopg2` > `raw_connection` in `sqlalchemy` > `con.connection` in `sqlalchemy`, but no huge difference;
