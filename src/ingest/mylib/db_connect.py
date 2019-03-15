@@ -4,6 +4,10 @@ import sqlalchemy as sa # Package for accessing SQL databases via Python
 import s3fs
 import glob_func
 
+"""
+sqlalchemy and sqlalchemy-redshift were used as the ODBC connector for PostgreSQL and Redshift, respectively.
+"""
+
 class db_connect:
     def __init__(self, redshift=True):
         self.conn = None
@@ -22,7 +26,7 @@ class db_connect:
             self.user = os.getenv('REDSHIFT_USER', 'default')
             self.pswd = os.getenv('REDSHIFT_PASSWORD', 'default')
             self.host = os.getenv('REDSHIFT_HOST_IP', 'default')
-            self.port = '5439'
+            self.port = os.getenv('REDSHIFT_PORT', 'default')
             self.dbname = os.getenv('REDSHIFT_DATABASE', 'default')
             self.surl = 'redshift+psycopg2://'
             self.s3fuse = s3fs.S3FileSystem(anon=False)

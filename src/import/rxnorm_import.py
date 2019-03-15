@@ -5,6 +5,10 @@ import boto
 from boto.s3.key import Key
 import requests
 
+"""
+This file crawl RxNorm weekly updates from NIH's webpage using regex pattern and downloaded them into the S3 bucket.
+"""
+
 def rxnorm_crawler():
     """
     Crawl RxNorm weekly updates from NIH's webpage and store them in S3 bucket.
@@ -37,7 +41,7 @@ if __name__ == "__main__":
     aws_access_key = os.getenv('AWS_ACCESS_KEY_ID', 'default')
     aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', 'default')
     conn = boto.connect_s3(aws_access_key, aws_secret_access_key)
-    bucket_name = "rxminer"
+    bucket_name = os.getenv('AWS_BUCKET_NAME', 'default')
     # Setup the bucket
     bucket = conn.get_bucket(bucket_name)
     rxnorm_crawler()

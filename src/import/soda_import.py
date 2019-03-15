@@ -3,6 +3,10 @@ import boto
 import pandas as pd
 from sodapy import Socrata
 
+"""
+Obtain Medicaid and Medicare data from Socrata's SODA API and store them in the S3 bucket.
+"""
+
 def import_soda(client_path, end_point, file_name, rxminer_token):
     """
     Obtain data from Socrata's SODA API
@@ -39,7 +43,7 @@ def upload_s3():
     aws_access_key = os.getenv('AWS_ACCESS_KEY_ID', 'default')
     aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY', 'default')
     conn = boto.connect_s3(aws_access_key, aws_secret_access_key)
-    bucket_name = "rxminer"
+    bucket_name = os.getenv('AWS_BUCKET_NAME', 'default')
     bucket = conn.get_bucket(bucket_name)
     object_key = "rx_data/"
     s3 = boto3.client('s3')

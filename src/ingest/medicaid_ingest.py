@@ -3,6 +3,10 @@ from mylib import glob_func
 from mylib import db_connect
 from mylib import us_state_abbr
 
+"""
+Ingest healthcare datasets from Medicaid and read them chunk by chunk. National Drug Codes (NDC) were standardized while processing.
+"""
+
 def read_medicaid(year, mode, new_table):
     """
     Read and clean Medicaid's datasets by chunks
@@ -41,7 +45,8 @@ if __name__ == "__main__":
     engine, con = db_connection.engine_connect()
     conn, cur = db_connection.raw_connect()
     s3f = db_connection.s3_fuse()
-    s3_path = 's3n://rxminer/'
+    bucket_name = os.getenv('AWS_BUCKET_NAME', 'default')
+    s3_path = 's3n://'+bucket_name+'/'
     chunk_size = 200000
     read_medicaid(2013, 'append', True)
     for year in [2014,2015,2016]:

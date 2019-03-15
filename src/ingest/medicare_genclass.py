@@ -3,6 +3,10 @@ from mylib import glob_func
 from mylib import db_connect
 from mylib import rxgen_parser
 
+"""
+Parse through Medicare datasets and collect unique generic names and classify the drugs by regex patterns.
+"""
+
 def collect_gen(df, df1):
     """
     Collect unique generic names
@@ -33,7 +37,8 @@ if __name__ == "__main__":
     engine, con = db_connection.engine_connect()
     conn, cur = db_connection.raw_connect()
     s3f = db_connection.s3_fuse()
-    s3_path = 's3n://rxminer/'
+    bucket_name = os.getenv('AWS_BUCKET_NAME', 'default')
+    s3_path = 's3n://'+bucket_name+'/'
     new_table = 0
     chunk_size = 2000000
     url = 'https://druginfo.nlm.nih.gov/drugportal/jsp/drugportal/DrugNameGenericStems.jsp'
