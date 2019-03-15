@@ -68,7 +68,7 @@ Raw data were collected and stored in S3 bucket.
 ```
 
 # SQL
-![Schema Design](docs/schema.png)
+![Schema Design](./../docs/schema.png)
 
 The healthcare datasets from medicaid and medicare were first validated by npi (doctor's information) and ndc (drug's information). Drug events failed the validation were collected in the `error` table.
 
